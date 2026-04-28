@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>GoldExpress — Kargo İdarəetmə v11</title>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
@@ -32,7 +34,7 @@
   --radius:14px;
 }
 html{font-size:14px}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--ink);color:var(--text);min-height:100vh}
+body{font-family:'Plus Jakarta Sans','Inter',system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:var(--ink);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 
 /* PUBLIC TRACKING PAGE STYLES */
 .tracking-page{min-height:100vh;background:linear-gradient(135deg,#0a0a12 0%,#161622 100%);padding:20px}
@@ -218,6 +220,116 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--ink);color:var(
   .form-row,.form-row3{grid-template-columns:1fr}
   .th,.tr{min-width:800px}
 }
+
+/* === FIX: SELECT OPTION DARK BACKGROUND === */
+select.form-input{appearance:none;-webkit-appearance:none;-moz-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path fill='%23a0a0b8' d='M6 8L0 0h12z'/></svg>");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+select.form-input option,select option{background:var(--ink3)!important;color:var(--text)!important;padding:8px}
+select.form-input optgroup{background:var(--ink2);color:var(--gold)}
+
+/* === MISSING CLASSES === */
+.sectionTitle,.section-title{font-size:.65rem;color:var(--gold);margin:18px 0 12px;padding-bottom:6px;border-bottom:1px solid rgba(240,165,0,.15);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.search-bar{display:flex;gap:12px;margin-bottom:18px;flex-wrap:wrap;align-items:center}
+.search-box{position:relative;flex:1;min-width:200px}
+.search-box i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:.85rem;pointer-events:none}
+.search-box input{width:100%;padding:11px 14px 11px 40px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:11px;color:var(--text);font-size:.85rem;outline:none;font-family:inherit}
+.search-box input:focus{border-color:var(--gold)}
+.phdr-acts{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn-purple{background:linear-gradient(135deg,var(--purple),#7c3aed);color:#fff}
+.btn-red{background:linear-gradient(135deg,var(--red),#b91c1c);color:#fff}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.25)}
+.btn:active{transform:translateY(0)}
+.emp-header{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.emp-info{flex:1;min-width:0}
+.emp-info h4{color:#fff;font-size:.95rem;margin-bottom:4px}
+.emp-details{color:var(--t2);font-size:.78rem;line-height:1.7}
+.emp-details p{display:flex;align-items:center;gap:8px;word-break:break-all}
+.emp-details i{color:var(--t3);width:14px}
+.emp-card .actions{margin-top:14px;padding-top:14px;border-top:1px solid var(--bdr)}
+.profile-info{flex:1}
+.profile-info h3{color:#fff;font-size:1.2rem;margin-bottom:4px}
+.profile-info span{color:var(--gold);font-size:.85rem;font-weight:600}
+.profile-card .emp-details{margin-top:20px;padding-top:20px;border-top:1px solid var(--bdr)}
+.mono,.tid{font-family:'IBM Plex Mono','Courier New',monospace}
+.detail-card.gold{background:rgba(240,165,0,.08);border-color:rgba(240,165,0,.25)}
+.detail-card.gold label{color:var(--gold)}
+.sb-sec{padding:8px 14px;color:var(--t3);font-size:.6rem;text-transform:uppercase;letter-spacing:1px;margin-top:8px}
+.notify.s{border-left-color:var(--green)}
+.notify.e{border-left-color:var(--red)}
+.notify.i{border-left-color:var(--blue)}
+.notify.w{border-left-color:var(--gold)}
+.notify i{font-size:1.1rem}
+.notify.s i{color:var(--green)}
+.notify.e i{color:var(--red)}
+.notify.i i{color:var(--blue)}
+.notify.w i{color:var(--gold)}
+.sync-pill{transition:opacity .25s}
+.sync-pill i{margin-right:6px}
+
+/* Loading overlay */
+.loading{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--ink);z-index:9999;transition:opacity .35s}
+.loading.out{opacity:0;pointer-events:none}
+.loading-icon{font-size:3.5rem;animation:bounce 1s infinite}
+.loading-title{color:var(--gold);font-weight:700;margin-top:14px;font-size:.9rem;letter-spacing:.5px}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+
+/* Buttons inside login: focus ring */
+*:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:6px}
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none}
+
+/* Better contrast for muted text */
+.info-label,.step-date,.history-time,.sc p,.tracking-id .label,.tracking-footer{color:#9090a8}
+
+/* Modal animation */
+@keyframes modalIn{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:none}}
+.ov.on .modal{animation:modalIn .22s cubic-bezier(.4,0,.2,1)}
+.ov{transition:background .2s}
+
+/* Action button hover */
+.action-btn{transition:transform .15s,filter .15s}
+.action-btn:hover{transform:translateY(-2px);filter:brightness(1.2)}
+
+/* Stat card transition */
+.sc{transition:transform .2s,border-color .2s}
+
+/* Empty state styling */
+.empty-state i{font-size:3rem;display:block;margin-bottom:12px;opacity:.4}
+.empty-state p{font-size:.85rem}
+
+/* Table row click area */
+.tr{transition:background .15s}
+
+/* Better placeholder color */
+input::placeholder,textarea::placeholder{color:var(--t3);opacity:.7}
+
+/* Custom scrollbar */
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:var(--ink2)}
+::-webkit-scrollbar-thumb{background:var(--ink4);border-radius:6px;border:2px solid var(--ink2)}
+::-webkit-scrollbar-thumb:hover{background:#2a2a3e}
+
+/* === PRINT LABEL STYLES === */
+.pd{padding:14px;border:2px dashed #999;margin-bottom:12px;font-family:'IBM Plex Mono',monospace;color:#000;background:#fff;page-break-after:always}
+.pd .clabel{text-align:center;font-weight:800;font-size:11px;background:#000;color:#fff;padding:4px;border-radius:4px;margin-bottom:8px;letter-spacing:1px}
+.pd .ph{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #000;padding-bottom:6px;margin-bottom:8px;font-size:11px}
+.pd .ph h1{font-size:14px;margin:0}
+.pd .qr-c{text-align:center;margin:8px 0}
+.pd .qr-c img{display:inline-block}
+.pd .onum{text-align:center;font-size:18px;font-weight:800;letter-spacing:2px;margin:6px 0;border:2px solid #000;padding:6px;border-radius:6px}
+.pd .sbar{text-align:center;background:#f0a500;color:#000;font-weight:800;padding:5px;border-radius:4px;font-size:11px;margin-bottom:8px}
+.pd table{width:100%;border-collapse:collapse;font-size:10px;margin-bottom:8px}
+.pd table th,.pd table td{padding:4px 6px;border:1px solid #999;text-align:left}
+.pd table th{background:#f5f5f5;width:40%}
+.pd .blk{margin:6px 0;font-size:10px;border-top:1px dashed #999;padding-top:6px}
+.pd .blk strong{display:block;font-size:11px;color:#000;margin-bottom:2px}
+.pd .blk p{margin:0;line-height:1.4}
+.pd .foot{text-align:center;font-size:9px;color:#666;margin-top:6px;border-top:1px solid #999;padding-top:4px}
+
+@media print{
+  body * {visibility:hidden}
+  #printArea, #printArea * {visibility:visible}
+  #printArea{position:absolute;left:0;top:0;width:100%;display:block!important}
+  .pd{border:2px solid #000;page-break-inside:avoid}
+}
 </style>
 </head>
 <body>
@@ -228,7 +340,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--ink);color:var(
 
 <div id="modalDetail" class="ov"><div class="modal wide"><button class="modal-close" onclick="closeModal('modalDetail')"><i class="fas fa-times"></i></button><div id="detailContent"></div></div></div>
 <div id="modalEdit" class="ov"><div class="modal wide"><button class="modal-close" onclick="closeModal('modalEdit')"><i class="fas fa-times"></i></button><div id="editContent"></div></div></div>
-<div id="modalQR" class="ov"><div class="modal narrow"><button class="modal-close" onclick="closeModal('modalQR')"><i class="fas fa-times"></i></button><div class="modal-header"><i class="fas fa-qrcode"></i> QR Kod</div><div style="text-align:center;padding:12px 0"><div style="background:#fff;padding:15px;display:inline-block;border-radius:14px"><div id="qrCodeContainer"></div></div><div style="font-family:monospace;color:var(--gold);font-size:1rem;margin-top:10px" id="qrCodeId"></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><button class="btn btn-gold" onclick="printQR()"><i class="fas fa-print"></i> Çap</button><button class="btn btn-ghost" onclick="closeModal('modalQR')">Bağla</button></div></div></div>
+<div id="modalQR" class="ov"><div class="modal narrow"><button class="modal-close" onclick="closeModal('modalQR')"><i class="fas fa-times"></i></button><div class="modal-header"><i class="fas fa-qrcode"></i> QR Kod</div><div style="text-align:center;padding:12px 0"><div style="background:#fff;padding:15px;display:inline-block;border-radius:14px"><div id="qrCodeContainer"></div></div><div class="mono" style="color:var(--gold);font-size:1rem;margin-top:10px;font-weight:700;letter-spacing:1px" id="qrCodeId"></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><button class="btn btn-gold" onclick="printQR()"><i class="fas fa-print"></i> Çap</button><button class="btn btn-ghost" onclick="closeModal('modalQR')">Bağla</button></div></div></div>
 
 <div id="modalScan" class="ov"><div class="modal narrow"><button class="modal-close" onclick="closeScanner()"><i class="fas fa-times"></i></button><div class="modal-header"><i class="fas fa-camera"></i> QR Skan</div><div id="qrScannerReader" style="border-radius:12px;overflow:hidden"></div><div id="scanResultArea" style="margin-top:12px"></div></div></div>
 
@@ -283,6 +395,16 @@ const DEFAULT_PERMISSIONS = {
 };
 
 let shipments = [], employees = [], currentUser = null, currentRole = 'admin', currentPage = 'dashboard', activeShipmentId = null, scannerInstance = null;
+let unsubShipments = null, unsubEmployees = null;
+let searchDebounceTimer = null;
+
+// === XSS PROTECTION: escape user data before inserting into HTML ===
+const esc = (v) => {
+  if (v === null || v === undefined) return '';
+  return String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+};
+// For inserting into onclick="...'X'..." style attributes, also escape backslashes
+const escAttr = (v) => esc(v).replace(/\\/g, '\\\\');
 
 const DEFAULT_EMPLOYEES = [
   { id: 'admin1', name: 'Admin', surname: 'User', username: 'admin', password: 'admin123', role: 'admin', phone: '+994501234567', email: 'admin@goldexpress.az', active: 1 },
@@ -292,17 +414,51 @@ const DEFAULT_EMPLOYEES = [
 ];
 
 function getCurrentTime() { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
-function generateId() { return 'GE-'+new Date().getFullYear()+'-'+Date.now().toString(36).toUpperCase().slice(-4); }
-function showNotification(msg, type='s') { const c=document.getElementById('notifyContainer'); if(!c) return; const el=document.createElement('div'); el.className=`notify ${type}`; el.innerHTML=`<i class="fas ${type==='s'?'fa-check-circle':'fa-exclamation-circle'}"></i><div>${msg}</div>`; c.appendChild(el); setTimeout(()=>el.remove(),4000); }
+function generateId() { return 'GE-'+new Date().getFullYear()+'-'+(Date.now().toString(36)+Math.random().toString(36).slice(2,5)).toUpperCase().slice(-6); }
+function showNotification(msg, type='s') {
+  const c=document.getElementById('notifyContainer'); if(!c) return;
+  const validType = ['s','e','i','w'].includes(type) ? type : 's';
+  const iconMap = {s:'fa-check-circle', e:'fa-exclamation-circle', i:'fa-info-circle', w:'fa-exclamation-triangle'};
+  const el=document.createElement('div'); el.className=`notify ${validType}`;
+  el.innerHTML=`<i class="fas ${iconMap[validType]}"></i><div>${esc(msg)}</div>`;
+  c.appendChild(el); setTimeout(()=>el.remove(),4000);
+}
 function showSync(text, cls='ok') { const p=document.getElementById('syncPill'); if(!p) return; p.className=`sync-pill show ${cls}`; const s=document.getElementById('syncText'); if(s) s.textContent=text; setTimeout(()=>p.classList.remove('show'),2500); }
 function openModal(id) { const el=document.getElementById(id); if(el) el.classList.add('on'); }
 window.closeModal = function(id) { const el=document.getElementById(id); if(el) el.classList.remove('on'); };
 window.togglePassword = function() { const pwd=document.getElementById('loginPassword'); if(pwd) { if(pwd.type==='password'){ pwd.type='text'; } else { pwd.type='password'; } } };
 
+// === ESC closes modals, click-outside closes modals ===
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    const open = document.querySelector('.ov.on');
+    if (open) {
+      // Special case: close scanner properly
+      if (open.id === 'modalScan' && typeof window.closeScanner === 'function') {
+        window.closeScanner();
+      } else {
+        open.classList.remove('on');
+      }
+    }
+  }
+});
+document.addEventListener('click', e => {
+  if (e.target.classList && e.target.classList.contains('ov') && e.target.classList.contains('on')) {
+    if (e.target.id === 'modalScan' && typeof window.closeScanner === 'function') {
+      window.closeScanner();
+    } else {
+      e.target.classList.remove('on');
+    }
+  }
+});
+
 function formatPhoneNumber(phone) {
   if (!phone || phone === '—' || phone === 'unknown') return null;
   let cleaned = String(phone).replace(/[^0-9+]/g, '');
   if (!cleaned) return null;
+  // Минимум 9 цифр для валидного номера
+  const digits = cleaned.replace(/\D/g, '');
+  if (digits.length < 9) return null;
   if (cleaned.startsWith('+')) return cleaned;
   if (cleaned.startsWith('994')) return '+' + cleaned;
   if (cleaned.startsWith('0')) return '+994' + cleaned.substring(1);
@@ -347,7 +503,7 @@ async function renderPublicTracking() {
           <div class="tracking-error">
             <i class="fas fa-box-open"></i>
             <h3>Bağlama tapılmadı</h3>
-            <p>"${trackId}" ID-li bağlama sistemdə mövcud deyil</p>
+            <p>"${esc(trackId)}" ID-li bağlama sistemdə mövcud deyil</p>
           </div>
         </div>
       </div>
@@ -395,10 +551,10 @@ async function renderPublicTracking() {
         <div class="tracking-card">
           <div class="tracking-id">
             <div class="label">Bağlama ID</div>
-            <div class="value">${s.id}</div>
+            <div class="value">${esc(s.id)}</div>
           </div>
           <div class="tracking-status">
-            <span class="status-badge ${STATUS_CLASS[s.status]}">${STATUS_LABELS[s.status]}</span>
+            <span class="status-badge ${STATUS_CLASS[s.status]||'s1'}">${esc(STATUS_LABELS[s.status]||s.status)}</span>
           </div>
           <div class="tracking-progress">
             ${stepsHtml}
@@ -406,15 +562,15 @@ async function renderPublicTracking() {
         </div>
         <div class="tracking-card">
           <div class="tracking-info">
-            <div class="info-row"><span class="info-label">Göndərən</span><span class="info-value">${s.senderName || ''} ${s.senderSurname || ''}</span></div>
-            <div class="info-row"><span class="info-label">Alan</span><span class="info-value">${s.receiverName || ''} ${s.receiverSurname || ''}</span></div>
-            <div class="info-row"><span class="info-label">Çatdırılma ünvanı</span><span class="info-value">${s.receiverAddress || '—'}</span></div>
-            <div class="info-row"><span class="info-label">Çəki</span><span class="info-value">${s.weight || 0} kg</span></div>
+            <div class="info-row"><span class="info-label">Göndərən</span><span class="info-value">${esc((s.senderName || '') + ' ' + (s.senderSurname || ''))}</span></div>
+            <div class="info-row"><span class="info-label">Alan</span><span class="info-value">${esc((s.receiverName || '') + ' ' + (s.receiverSurname || ''))}</span></div>
+            <div class="info-row"><span class="info-label">Çatdırılma ünvanı</span><span class="info-value">${esc(s.receiverAddress || '—')}</span></div>
+            <div class="info-row"><span class="info-label">Çəki</span><span class="info-value">${esc(s.weight || 0)} kg</span></div>
             <div class="info-row"><span class="info-label">Daşınma növü</span><span class="info-value">${s.shipType === 'international' ? '🌍 Beynəlxalq' : '🇦🇿 Daxili'}</span></div>
-            ${s.trackingCode ? `<div class="info-row"><span class="info-label">İzləmə kodu</span><span class="info-value">${s.trackingCode}</span></div>` : ''}
+            ${s.trackingCode ? `<div class="info-row"><span class="info-label">İzləmə kodu</span><span class="info-value">${esc(s.trackingCode)}</span></div>` : ''}
           </div>
         </div>
-        <div class="tracking-footer">GoldExpress Kargo İdarəetmə Sistemi<br>Son yeniləmə: ${(s.createdAt || '').slice(0, 16)}</div>
+        <div class="tracking-footer">GoldExpress Kargo İdarəetmə Sistemi<br>Son yeniləmə: ${esc((s.createdAt || '').slice(0, 16))}</div>
       </div>
     </div>
   `;
@@ -430,13 +586,14 @@ function hasPermission(perm) {
 window.sendWhatsApp = function(phone, shipmentId, status, customerName) {
   const formattedPhone = formatPhoneNumber(phone);
   if (!formattedPhone) {
-    showNotification('Telefon nömrəsi tapılmadı!', 'e');
+    showNotification('Telefon nömrəsi tapılmadı və ya yanlışdır!', 'e');
     return;
   }
   const siteUrl = window.location.origin + window.location.pathname;
-  const trackingLink = `${siteUrl}?track=${shipmentId}`;
-  const message = `📦 *GoldExpress Kargo* 📦\n\nSalam ${customerName || 'Hörmətli müştəri'},\n\nSizin bağlamanızın yeni statusu:\n▸ Bağlama ID: *${shipmentId}*\n▸ Status: *${STATUS_LABELS[status] || status}*\n\n🔗 İzləmə linki: ${trackingLink}\n\nBağlamanızın cari vəziyyətini yuxarıdaki linkdən izləyə bilərsiniz.\n\nTəşəkkür edirik! 🚀\nGoldExpress Komandası`;
-  const waUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
+  const trackingLink = `${siteUrl}?track=${encodeURIComponent(shipmentId)}`;
+  const cleanName = (customerName || '').trim() || 'Hörmətli müştəri';
+  const message = `📦 *GoldExpress Kargo* 📦\n\nSalam ${cleanName},\n\nSizin bağlamanızın yeni statusu:\n▸ Bağlama ID: *${shipmentId}*\n▸ Status: *${STATUS_LABELS[status] || status}*\n\n🔗 İzləmə linki: ${trackingLink}\n\nBağlamanızın cari vəziyyətini yuxarıdakı linkdən izləyə bilərsiniz.\n\nTəşəkkür edirik! 🚀\nGoldExpress Komandası`;
+  const waUrl = `https://wa.me/${formattedPhone.replace('+','')}?text=${encodeURIComponent(message)}`;
   window.open(waUrl, '_blank');
 };
 
@@ -445,7 +602,16 @@ function renderTable(list) {
   const canPrint = hasPermission('print');
   const canDelete = hasPermission('delete');
   const canEdit = hasPermission('edit');
-  return `<div class="tw"><div class="th"><div>ID</div><div>Göndərən</div><div>Çəki/Məbləğ</div><div>Alan</div><div>Ünvan</div><div>Tarix</div><div>Status</div><div>Əməliyyat</div></div>${list.map(s=>`<div class="tr"><div class="tid" onclick="viewShipmentDetails('${s.id}')">${s.id}</div><div>${s.senderName||''} ${s.senderSurname||''}<br><small>${s.senderPhone||''}</small></div><div>${s.weight||0}kg<br>${s.shipPrice||0}₼</div><div>${s.receiverName||''} ${s.receiverSurname||''}<br><small>${s.receiverPhone||''}</small></div><div><small>${(s.receiverAddress||'').substring(0,35)}</small></div><div><small>${(s.createdAt||'').slice(0,10)}</small></div><div><span class="stb ${STATUS_CLASS[s.status]||'s1'}">${STATUS_LABELS[s.status]||s.status}</span></div><div class="actions"><button class="action-btn action-view" onclick="viewShipmentDetails('${s.id}')"><i class="fas fa-eye"></i></button><button class="action-btn action-qr" onclick="showShipmentQR('${s.id}')"><i class="fas fa-qrcode"></i></button>${canEdit?`<button class="action-btn action-edit" onclick="editShipment('${s.id}')"><i class="fas fa-pen"></i></button>`:''}<button class="action-btn action-wa" onclick="sendWhatsApp('${s.receiverPhone}', '${s.id}', '${s.status}', '${s.receiverName} ${s.receiverSurname}')"><i class="fab fa-whatsapp"></i></button>${canPrint?`<button class="action-btn action-print" onclick="printShipmentLabel('${s.id}')"><i class="fas fa-print"></i></button>`:''}${canDelete?`<button class="action-btn action-delete" onclick="deleteShipment('${s.id}')"><i class="fas fa-trash"></i></button>`:''}</div></div>`).join('')}</div>`;
+  return `<div class="tw"><div class="th"><div>ID</div><div>Göndərən</div><div>Çəki/Məbləğ</div><div>Alan</div><div>Ünvan</div><div>Tarix</div><div>Status</div><div>Əməliyyat</div></div>${list.map(s=>{
+    const id = esc(s.id);
+    const sName = esc(s.senderName||''), sSur = esc(s.senderSurname||''), sPh = esc(s.senderPhone||'');
+    const rName = esc(s.receiverName||''), rSur = esc(s.receiverSurname||''), rPh = esc(s.receiverPhone||'');
+    const rAddr = esc((s.receiverAddress||'').substring(0,35));
+    const date = esc((s.createdAt||'').slice(0,10));
+    const stCls = STATUS_CLASS[s.status]||'s1';
+    const stLbl = esc(STATUS_LABELS[s.status]||s.status);
+    return `<div class="tr"><div class="tid" onclick="viewShipmentDetails('${escAttr(s.id)}')">${id}</div><div>${sName} ${sSur}<br><small>${sPh}</small></div><div>${esc(s.weight||0)}kg<br>${esc(s.shipPrice||0)}₼</div><div>${rName} ${rSur}<br><small>${rPh}</small></div><div><small>${rAddr}</small></div><div><small>${date}</small></div><div><span class="stb ${stCls}">${stLbl}</span></div><div class="actions"><button class="action-btn action-view" title="Bax" onclick="viewShipmentDetails('${escAttr(s.id)}')"><i class="fas fa-eye"></i></button><button class="action-btn action-qr" title="QR" onclick="showShipmentQR('${escAttr(s.id)}')"><i class="fas fa-qrcode"></i></button>${canEdit?`<button class="action-btn action-edit" title="Redaktə" onclick="editShipment('${escAttr(s.id)}')"><i class="fas fa-pen"></i></button>`:''}<button class="action-btn action-wa" title="WhatsApp" onclick="sendWhatsApp('${escAttr(s.receiverPhone||'')}','${escAttr(s.id)}','${escAttr(s.status)}','${escAttr((s.receiverName||'')+' '+(s.receiverSurname||''))}')"><i class="fab fa-whatsapp"></i></button>${canPrint?`<button class="action-btn action-print" title="Çap" onclick="printShipmentLabel('${escAttr(s.id)}')"><i class="fas fa-print"></i></button>`:''}${canDelete?`<button class="action-btn action-delete" title="Sil" onclick="deleteShipment('${escAttr(s.id)}')"><i class="fas fa-trash"></i></button>`:''}</div></div>`;
+  }).join('')}</div>`;
 }
 
 function renderDashboard() {
@@ -453,57 +619,60 @@ function renderDashboard() {
   shipments.forEach(s=>{ if(c[s.status]!==undefined) c[s.status]++; else if(s.status==='done') c.delivered++; });
   const canCreate = hasPermission('create');
   const canImport = hasPermission('import');
-  return `<div class="page"><div class="phdr"><h2><i class="fas fa-home"></i> Panel</h2><div class="phdr-acts">${canCreate?'<button class="btn btn-green" onclick="openNewShipment()"><i class="fas fa-plus"></i> Yeni Bağlama</button>':''}<button class="btn btn-ghost" onclick="openScanner()"><i class="fas fa-qrcode"></i> QR Skan</button>${canImport?'<button class="btn btn-purple" onclick="openModal(\'modalImport\')"><i class="fas fa-upload"></i> CSV İdxal</button><button class="btn btn-blue" onclick="exportToCSV()"><i class="fas fa-download"></i> CSV İxrac</button>':''}</div></div><div class="stats"><div class="sc c1" onclick="gotoFiltered('created')"><div class="sic"><i class="fas fa-plus"></i></div><h3>${c.created||0}</h3><p>Yaradıldı</p></div><div class="sc c2" onclick="gotoFiltered('warehouse_az')"><div class="sic"><i class="fas fa-warehouse"></i></div><h3>${c.warehouse_az||0}</h3><p>Anbarda</p></div><div class="sc c3" onclick="gotoFiltered('courier')"><div class="sic"><i class="fas fa-motorcycle"></i></div><h3>${c.courier||0}</h3><p>Kuryerdə</p></div><div class="sc c4" onclick="gotoFiltered('delivered')"><div class="sic"><i class="fas fa-check-circle"></i></div><h3>${c.delivered||0}</h3><p>Çatdırıldı</p></div><div class="sc c5"><div class="sic"><i class="fas fa-layer-group"></i></div><h3>${shipments.length}</h3><p>Ümumi</p></div></div>${renderTable(shipments.slice(0,15))}</div>`;
+  return `<div class="page"><div class="phdr"><h2><i class="fas fa-home"></i> Panel</h2><div class="phdr-acts">${canCreate?'<button class="btn btn-green" onclick="openNewShipment()"><i class="fas fa-plus"></i> Yeni Bağlama</button>':''}<button class="btn btn-ghost" onclick="openScanner()"><i class="fas fa-qrcode"></i> QR Skan</button>${canImport?'<button class="btn btn-purple" onclick="openModal(\'modalImport\')"><i class="fas fa-upload"></i> CSV İdxal</button><button class="btn btn-blue" onclick="exportToCSV()"><i class="fas fa-download"></i> CSV İxrac</button>':''}</div></div><div class="stats"><div class="sc c1" onclick="gotoFiltered('created')"><div class="sic"><i class="fas fa-plus"></i></div><h3>${c.created||0}</h3><p>Yaradıldı</p></div><div class="sc c2" onclick="gotoFiltered('warehouse_az')"><div class="sic"><i class="fas fa-warehouse"></i></div><h3>${c.warehouse_az||0}</h3><p>Anbarda</p></div><div class="sc c3" onclick="gotoFiltered('courier')"><div class="sic"><i class="fas fa-motorcycle"></i></div><h3>${c.courier||0}</h3><p>Kuryerdə</p></div><div class="sc c4" onclick="gotoFiltered('delivered')"><div class="sic"><i class="fas fa-check-circle"></i></div><h3>${c.delivered||0}</h3><p>Çatdırıldı</p></div><div class="sc c5" onclick="changePage('shipments')"><div class="sic"><i class="fas fa-layer-group"></i></div><h3>${shipments.length}</h3><p>Ümumi</p></div></div>${renderTable(shipments.slice(0,15))}</div>`;
 }
 
 function renderShipments() {
-  return `<div class="page"><div class="phdr"><h2><i class="fas fa-box"></i> Sifarişlər</h2><div class="phdr-acts">${hasPermission('create')?'<button class="btn btn-green" onclick="openNewShipment()">Yeni</button>':''}${hasPermission('import')?'<button class="btn btn-blue" onclick="exportToCSV()">CSV</button>':''}</div></div><div class="search-bar"><div class="search-box"><i class="fas fa-search"></i><input placeholder="Axtar..." oninput="filterShipments(this.value)" id="searchInput"></div><select class="form-input" onchange="filterByStatus(this.value)" id="statusFilter" style="width:200px"><option value="all">Bütün statuslar</option>${Object.entries(STATUS_LABELS).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div><div id="tableContainer">${renderTable(shipments)}</div></div>`;
+  return `<div class="page"><div class="phdr"><h2><i class="fas fa-box"></i> Sifarişlər <span style="color:var(--t3);font-size:.8rem;font-weight:500" id="shipmentsCount">(${shipments.length})</span></h2><div class="phdr-acts">${hasPermission('create')?'<button class="btn btn-green" onclick="openNewShipment()"><i class="fas fa-plus"></i> Yeni</button>':''}${hasPermission('import')?'<button class="btn btn-blue" onclick="exportToCSV()"><i class="fas fa-download"></i> CSV</button>':''}</div></div><div class="search-bar"><div class="search-box"><i class="fas fa-search"></i><input placeholder="ID, ad, telefon, izləmə kodu üzrə axtar..." oninput="filterShipments(this.value)" id="searchInput"></div><select class="form-input" onchange="filterByStatus(this.value)" id="statusFilter" style="max-width:220px"><option value="all">Bütün statuslar</option>${Object.entries(STATUS_LABELS).map(([k,v])=>`<option value="${esc(k)}">${esc(v)}</option>`).join('')}</select></div><div id="tableContainer">${renderTable(shipments)}</div></div>`;
 }
 
 function renderWarehouse() {
   const list = shipments.filter(s=>['created','warehouse_az'].includes(s.status));
-  return `<div class="page"><div class="phdr"><h2><i class="fas fa-warehouse"></i> Anbar Paneli</h2><div class="phdr-acts"><button class="btn btn-ghost" onclick="openScanner()">QR Skan</button></div></div><div id="warehouseTable">${renderTable(list)}</div></div>`;
+  return `<div class="page"><div class="phdr"><h2><i class="fas fa-warehouse"></i> Anbar Paneli <span style="color:var(--t3);font-size:.8rem;font-weight:500">(${list.length})</span></h2><div class="phdr-acts"><button class="btn btn-ghost" onclick="openScanner()"><i class="fas fa-qrcode"></i> QR Skan</button></div></div><div id="warehouseTable">${renderTable(list)}</div></div>`;
 }
 
 function renderCourier() {
   const list = shipments.filter(s=>s.status==='courier');
-  return `<div class="page"><div class="phdr"><h2><i class="fas fa-motorcycle"></i> Kuryer Paneli</h2><div class="phdr-acts"><button class="btn btn-ghost" onclick="openScanner()">QR Skan</button></div></div><div id="courierTable">${renderTable(list)}</div></div>`;
+  return `<div class="page"><div class="phdr"><h2><i class="fas fa-motorcycle"></i> Kuryer Paneli <span style="color:var(--t3);font-size:.8rem;font-weight:500">(${list.length})</span></h2><div class="phdr-acts"><button class="btn btn-ghost" onclick="openScanner()"><i class="fas fa-qrcode"></i> QR Skan</button></div></div><div id="courierTable">${renderTable(list)}</div></div>`;
 }
 
 function renderCustomers() {
   const cust = {};
-  shipments.forEach(s=>{ const k=s.senderPhone||'unknown'; if(!cust[k]) cust[k]={name:s.senderName+' '+s.senderSurname,phone:s.senderPhone||'—',count:0,total:0}; cust[k].count++; cust[k].total+=parseFloat(s.shipPrice)||0; });
-  return `<div class="page"><div class="phdr"><h2><i class="fas fa-users"></i> Müştərilər</h2></div><div class="tw"><div class="th" style="grid-template-columns:1fr 1fr 80px 100px"><div>Müştəri</div><div>Telefon</div><div>Sifariş</div><div>Ödəniş</div></div>${Object.values(cust).map(c=>`<div class="tr" style="grid-template-columns:1fr 1fr 80px 100px"><div><strong>${c.name}</strong></div><div>${c.phone}</div><div>${c.count}</div><div style="color:var(--gold)">${c.total.toFixed(2)} ₼</div></div>`).join('')||'<div class="empty-state">Müştəri yoxdur</div>'}</div></div>`;
+  shipments.forEach(s=>{ const k=s.senderPhone||'unknown'; if(!cust[k]) cust[k]={name:(s.senderName||'')+' '+(s.senderSurname||''),phone:s.senderPhone||'—',count:0,total:0}; cust[k].count++; cust[k].total+=parseFloat(s.shipPrice)||0; });
+  return `<div class="page"><div class="phdr"><h2><i class="fas fa-users"></i> Müştərilər</h2></div><div class="tw"><div class="th" style="grid-template-columns:1fr 1fr 80px 100px"><div>Müştəri</div><div>Telefon</div><div>Sifariş</div><div>Ödəniş</div></div>${Object.values(cust).map(c=>`<div class="tr" style="grid-template-columns:1fr 1fr 80px 100px"><div><strong>${esc(c.name)}</strong></div><div>${esc(c.phone)}</div><div>${c.count}</div><div style="color:var(--gold)">${c.total.toFixed(2)} ₼</div></div>`).join('')||'<div class="empty-state"><i class="fas fa-users"></i><p>Müştəri yoxdur</p></div>'}</div></div>`;
 }
 
 function renderReport() {
   const c={}; Object.keys(STATUS_LABELS).forEach(s=>c[s]=0);
   shipments.forEach(s=>c[s.status]=(c[s.status]||0)+1);
   const total=shipments.length, rev=shipments.reduce((a,s)=>a+(parseFloat(s.shipPrice)||0),0);
-  return `<div class="page"><div class="phdr"><h2><i class="fas fa-chart-bar"></i> Hesabat</h2><div class="phdr-acts">${hasPermission('import')?'<button class="btn btn-blue" onclick="exportToCSV()">CSV</button>':''}</div></div><div class="stats" style="grid-template-columns:repeat(4,1fr)"><div class="sc c1"><div class="sic"><i class="fas fa-layer-group"></i></div><h3>${total}</h3><p>Ümumi</p></div><div class="sc c4"><div class="sic"><i class="fas fa-check-circle"></i></div><h3>${(c.delivered||0)+(c.done||0)}</h3><p>Çatdırıldı</p></div><div class="sc c3"><div class="sic"><i class="fas fa-money-bill"></i></div><h3>${rev.toFixed(0)}₼</h3><p>Gəlir</p></div></div><div class="tw"><div class="th" style="grid-template-columns:1fr 80px 80px"><div>Status</div><div>Say</div><div>Faiz</div></div>${Object.entries(STATUS_LABELS).map(([k,v])=>`<div class="tr" style="grid-template-columns:1fr 80px 80px"><div><span class="stb ${STATUS_CLASS[k]}">${v}</span></div><div>${c[k]||0}</div><div>${total?Math.round((c[k]||0)/total*100):0}%</div></div>`).join('')}</div></div>`;
+  const delivered = (c.delivered||0)+(c.done||0);
+  const pending = total - delivered;
+  return `<div class="page"><div class="phdr"><h2><i class="fas fa-chart-bar"></i> Hesabat</h2><div class="phdr-acts">${hasPermission('import')?'<button class="btn btn-blue" onclick="exportToCSV()"><i class="fas fa-download"></i> CSV İxrac</button>':''}</div></div><div class="stats" style="grid-template-columns:repeat(4,1fr)"><div class="sc c1"><div class="sic"><i class="fas fa-layer-group"></i></div><h3>${total}</h3><p>Ümumi</p></div><div class="sc c4"><div class="sic"><i class="fas fa-check-circle"></i></div><h3>${delivered}</h3><p>Çatdırıldı</p></div><div class="sc c2"><div class="sic"><i class="fas fa-clock"></i></div><h3>${pending}</h3><p>Gözləyir</p></div><div class="sc c3"><div class="sic"><i class="fas fa-money-bill"></i></div><h3>${rev.toFixed(0)} ₼</h3><p>Gəlir</p></div></div><div class="tw"><div class="th" style="grid-template-columns:1fr 80px 80px"><div>Status</div><div>Say</div><div>Faiz</div></div>${Object.entries(STATUS_LABELS).map(([k,v])=>`<div class="tr" style="grid-template-columns:1fr 80px 80px"><div><span class="stb ${STATUS_CLASS[k]||'s1'}">${esc(v)}</span></div><div>${c[k]||0}</div><div>${total?Math.round((c[k]||0)/total*100):0}%</div></div>`).join('')}</div></div>`;
 }
 
 function renderFinance() {
   const rev=shipments.reduce((a,s)=>a+(parseFloat(s.shipPrice)||0),0);
   const delRev=shipments.filter(s=>['delivered','done'].includes(s.status)).reduce((a,s)=>a+(parseFloat(s.shipPrice)||0),0);
-  return `<div class="page"><div class="phdr"><h2><i class="fas fa-money-bill-wave"></i> Maliyyə</h2><div class="phdr-acts">${hasPermission('import')?'<button class="btn btn-blue" onclick="exportToCSV()">CSV</button>':''}</div></div><div class="finance-row"><div class="finance-card"><h3 style="color:var(--green)">${rev.toFixed(2)} ₼</h3><p>Ümumi</p></div><div class="finance-card"><h3 style="color:var(--gold)">${delRev.toFixed(2)} ₼</h3><p>Çatdırılan</p></div><div class="finance-card"><h3 style="color:var(--blue)">${(rev-delRev).toFixed(2)} ₼</h3><p>Gözləyən</p></div></div>${renderTable(shipments.slice(0,20))}</div>`;
+  return `<div class="page"><div class="phdr"><h2><i class="fas fa-money-bill-wave"></i> Maliyyə</h2><div class="phdr-acts">${hasPermission('import')?'<button class="btn btn-blue" onclick="exportToCSV()"><i class="fas fa-download"></i> CSV İxrac</button>':''}</div></div><div class="finance-row"><div class="finance-card"><p style="color:var(--t3);font-size:.7rem;text-transform:uppercase;margin-bottom:8px">Ümumi gəlir</p><h3 style="color:var(--green);font-size:1.6rem;font-weight:800">${rev.toFixed(2)} ₼</h3></div><div class="finance-card"><p style="color:var(--t3);font-size:.7rem;text-transform:uppercase;margin-bottom:8px">Çatdırılan</p><h3 style="color:var(--gold);font-size:1.6rem;font-weight:800">${delRev.toFixed(2)} ₼</h3></div><div class="finance-card"><p style="color:var(--t3);font-size:.7rem;text-transform:uppercase;margin-bottom:8px">Gözləyən</p><h3 style="color:var(--blue);font-size:1.6rem;font-weight:800">${(rev-delRev).toFixed(2)} ₼</h3></div></div>${renderTable(shipments.slice(0,20))}</div>`;
 }
 
 function renderEmployees() {
   const canManage = hasPermission('employees');
-  return `<div class="page"><div class="phdr"><h2><i class="fas fa-user-shield"></i> İşçilər</h2><div class="phdr-acts">${canManage?'<button class="btn btn-green" onclick="openEmployeeModal()"><i class="fas fa-user-plus"></i> Yeni</button>':''}</div></div><div class="employee-grid">${employees.map(e=>`<div class="emp-card"><div class="emp-header"><div class="emp-avatar">${e.name.charAt(0)}</div><div class="emp-info"><h4>${e.name} ${e.surname}</h4><span class="role-badge role-${e.role}">${ROLE_LABELS[e.role]}</span></div></div><div class="emp-details"><p><i class="fas fa-user"></i> ${e.username}</p><p><i class="fas fa-envelope"></i> ${e.email||'—'}</p></div><div class="actions">${canManage?`<button class="btn btn-blue btn-sm" onclick="editEmployee('${e.id}')"><i class="fas fa-edit"></i></button><button class="btn btn-red btn-sm" onclick="deleteEmployee('${e.id}','${e.name}')"><i class="fas fa-trash"></i></button>`:''}</div></div>`).join('')}</div></div>`;
+  return `<div class="page"><div class="phdr"><h2><i class="fas fa-user-shield"></i> İşçilər</h2><div class="phdr-acts">${canManage?'<button class="btn btn-green" onclick="openEmployeeModal()"><i class="fas fa-user-plus"></i> Yeni</button>':''}</div></div><div class="employee-grid">${employees.map(e=>`<div class="emp-card"><div class="emp-header"><div class="emp-avatar">${esc((e.name||'?').charAt(0))}</div><div class="emp-info"><h4>${esc(e.name||'')} ${esc(e.surname||'')}</h4><span class="role-badge role-${esc(e.role||'operator')}">${esc(ROLE_LABELS[e.role]||e.role||'')}</span></div></div><div class="emp-details"><p><i class="fas fa-user"></i> ${esc(e.username||'—')}</p><p><i class="fas fa-envelope"></i> ${esc(e.email||'—')}</p><p><i class="fas fa-phone"></i> ${esc(e.phone||'—')}</p></div>${canManage?`<div class="actions"><button class="btn btn-blue btn-sm" onclick="editEmployee('${escAttr(e.id)}')"><i class="fas fa-edit"></i> Redaktə</button><button class="btn btn-red btn-sm" onclick="deleteEmployee('${escAttr(e.id)}','${escAttr(e.name||'')}')"><i class="fas fa-trash"></i></button></div>`:''}</div>`).join('')||'<div class="empty-state"><i class="fas fa-user-shield"></i><p>İşçi yoxdur</p></div>'}</div></div>`;
 }
 
 function renderProfile() {
   if(!currentUser) return '';
-  return `<div class="page"><div class="phdr"><h2><i class="fas fa-user-circle"></i> Profilim</h2></div><div class="profile-card"><div class="profile-header"><div class="profile-avatar">${currentUser.name.charAt(0)}</div><div class="profile-info"><h3>${currentUser.name} ${currentUser.surname}</h3><span>${ROLE_LABELS[currentRole]}</span></div></div><div class="emp-details"><p><i class="fas fa-user"></i> ${currentUser.username}</p><p><i class="fas fa-envelope"></i> ${currentUser.email||'—'}</p></div></div></div>`;
+  const name = currentUser.name || '?';
+  return `<div class="page"><div class="phdr"><h2><i class="fas fa-user-circle"></i> Profilim</h2></div><div class="profile-card"><div class="profile-header"><div class="profile-avatar">${esc(name.charAt(0))}</div><div class="profile-info"><h3>${esc(currentUser.name||'')} ${esc(currentUser.surname||'')}</h3><span>${esc(ROLE_LABELS[currentRole]||currentRole)}</span></div></div><div class="emp-details"><p><i class="fas fa-user"></i> ${esc(currentUser.username||'—')}</p><p><i class="fas fa-envelope"></i> ${esc(currentUser.email||'—')}</p><p><i class="fas fa-phone"></i> ${esc(currentUser.phone||'—')}</p></div></div></div>`;
 }
 
 async function loadHistory() {
   const snap = await getDocs(query(collection(db,'history'),orderBy('time','desc')));
   const logs = snap.docs.map(d=>d.data()).slice(0,150);
   const h = document.getElementById('historyList');
-  if(h) h.innerHTML = logs.map(l=>`<div class="history-item"><div class="history-text"><strong>${l.message}</strong><p>${l.user||'—'} ${l.role?`(${ROLE_LABELS[l.role]})`:''}</p></div><div class="history-time">${(l.time||'').slice(0,16)}</div></div>`).join('') || '<div class="empty-state">Tarixçə boşdur</div>';
+  if(h) h.innerHTML = logs.map(l=>`<div class="history-item"><div class="history-text"><strong>${esc(l.message||'')}</strong><p>${esc(l.user||'—')} ${l.role?`(${esc(ROLE_LABELS[l.role]||l.role)})`:''}</p></div><div class="history-time">${esc((l.time||'').slice(0,16))}</div></div>`).join('') || '<div class="empty-state"><i class="fas fa-history"></i><p>Tarixçə boşdur</p></div>';
 }
 
 const NAVIGATION = {
@@ -541,54 +710,113 @@ function renderPage(p) {
   else if(p==='profile') m.innerHTML = renderProfile();
 }
 
-window.filterShipments = function(q) { const f=shipments.filter(s=>s.id.toLowerCase().includes(q.toLowerCase())||(s.senderName+' '+s.senderSurname).toLowerCase().includes(q.toLowerCase())); document.getElementById('tableContainer').innerHTML=renderTable(f); };
-window.filterByStatus = function(st) { const f=st==='all'?shipments:shipments.filter(s=>s.status===st); document.getElementById('tableContainer').innerHTML=renderTable(f); };
-window.gotoFiltered = function(st) { changePage('shipments'); setTimeout(()=>{const el=document.getElementById('statusFilter'); if(el){el.value=st;filterByStatus(st);}},100); };
-window.openNewShipment = function() { document.getElementById('newId').value=generateId(); ['newWeight','newPrice','newSenderName','newSenderSurname','newSenderPhone','newSenderAddress','newReceiverName','newReceiverSurname','newReceiverPhone','newReceiverAddress','newDesc','newCustomerNote','newInternalNote','newTrackingCode'].forEach(id=>{const el=document.getElementById(id); if(el)el.value='';}); openModal('modalNew'); };
+function applyFilters() {
+  const q = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
+  const st = document.getElementById('statusFilter')?.value || 'all';
+  let f = shipments;
+  if (st !== 'all') f = f.filter(s => s.status === st);
+  if (q) {
+    f = f.filter(s => [s.id, s.senderName, s.senderSurname, s.senderPhone,
+      s.receiverName, s.receiverSurname, s.receiverPhone, s.receiverAddress,
+      s.trackingCode, s.description].some(v => String(v||'').toLowerCase().includes(q)));
+  }
+  const c = document.getElementById('tableContainer');
+  if (c) c.innerHTML = renderTable(f);
+  const cnt = document.getElementById('shipmentsCount');
+  if (cnt) cnt.textContent = `(${f.length}${f.length !== shipments.length ? ' / '+shipments.length : ''})`;
+}
+window.filterShipments = function(q) {
+  clearTimeout(searchDebounceTimer);
+  searchDebounceTimer = setTimeout(applyFilters, 200);
+};
+window.filterByStatus = function() { applyFilters(); };
+window.gotoFiltered = function(st) { changePage('shipments'); setTimeout(()=>{const el=document.getElementById('statusFilter'); if(el){el.value=st;applyFilters();}},120); };
+window.openNewShipment = function() {
+  document.getElementById('newId').value = generateId();
+  ['newWeight','newPrice','newSenderName','newSenderSurname','newSenderPhone','newSenderAddress',
+   'newReceiverName','newReceiverSurname','newReceiverPhone','newReceiverAddress',
+   'newDesc','newCustomerNote','newInternalNote','newTrackingCode'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  // Reset selects to default
+  const cat = document.getElementById('newCategory'); if (cat) cat.selectedIndex = 0;
+  const pay = document.getElementById('newPayment'); if (pay) pay.selectedIndex = 0;
+  const ship = document.getElementById('newShipType'); if (ship) ship.selectedIndex = 0;
+  openModal('modalNew');
+  setTimeout(() => document.getElementById('newSenderName')?.focus(), 100);
+};
 
 window.exportToCSV = function() {
+  const csvEsc = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
   let csv = "ID,Göndərən Ad,Soyad,Telefon,Alan Ad,Soyad,Telefon,Ünvan,Çəki,Məbləğ,Status,Tarix,Tracking Code,Daşınma Növü\n";
-  shipments.forEach(s=>{csv+=`"${s.id}","${s.senderName||''}","${s.senderSurname||''}","${s.senderPhone||''}","${s.receiverName||''}","${s.receiverSurname||''}","${s.receiverPhone||''}","${s.receiverAddress||''}",${s.weight||0},${s.shipPrice||0},"${STATUS_LABELS[s.status]||s.status}","${s.createdAt||''}","${s.trackingCode||''}","${s.shipType||'domestic'}"\n`;});
+  shipments.forEach(s=>{
+    csv += [s.id, s.senderName, s.senderSurname, s.senderPhone, s.receiverName, s.receiverSurname,
+      s.receiverPhone, s.receiverAddress, s.weight||0, s.shipPrice||0,
+      STATUS_LABELS[s.status]||s.status, s.createdAt, s.trackingCode, s.shipType||'domestic']
+      .map(csvEsc).join(',') + "\n";
+  });
   const blob = new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
-  const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "goldexport_"+new Date().toISOString().slice(0,10)+".csv"; link.click();
+  const link = document.createElement("a"); link.href = URL.createObjectURL(blob);
+  link.download = "goldexpress_"+new Date().toISOString().slice(0,10)+".csv"; link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
   showNotification("CSV faylı yükləndi","i");
 };
+
+// CSV row parser that handles quoted fields with commas inside
+function parseCSVRow(row) {
+  const result = [];
+  let cur = '', inQ = false;
+  for (let i = 0; i < row.length; i++) {
+    const c = row[i];
+    if (inQ) {
+      if (c === '"' && row[i+1] === '"') { cur += '"'; i++; }
+      else if (c === '"') { inQ = false; }
+      else cur += c;
+    } else {
+      if (c === '"') inQ = true;
+      else if (c === ',') { result.push(cur); cur = ''; }
+      else cur += c;
+    }
+  }
+  result.push(cur);
+  return result;
+}
 
 window.importCSV = function() {
   const file = document.getElementById('csvImportFile').files[0];
   if(!file){showNotification("Fayl seçin","e");return;}
   const reader = new FileReader();
   reader.onload = async function(e) {
-    const text = e.target.result;
-    const lines = text.split('\n');
-    let imported = 0;
+    const text = e.target.result.replace(/^\uFEFF/, ''); // strip BOM
+    const lines = text.split(/\r?\n/);
+    let imported = 0, skipped = 0, errors = 0;
     for(let i=1;i<lines.length;i++){
       if(!lines[i].trim()) continue;
-      const values = lines[i].split(',');
-      if(values.length<5) continue;
-      const id = values[0].replace(/"/g,'').trim();
-      if(shipments.find(s=>s.id===id)) continue;
+      const values = parseCSVRow(lines[i]);
+      if(values.length<5) { skipped++; continue; }
+      const id = (values[0]||'').trim() || generateId();
+      if(shipments.find(s=>s.id===id)) { skipped++; continue; }
       const data = {
-        id: id || generateId(),
-        senderName: values[1]?.replace(/"/g,'') || '',
-        senderSurname: values[2]?.replace(/"/g,'') || '',
-        senderPhone: values[3]?.replace(/"/g,'') || '',
-        receiverName: values[4]?.replace(/"/g,'') || '',
-        receiverSurname: values[5]?.replace(/"/g,'') || '',
-        receiverPhone: values[6]?.replace(/"/g,'') || '',
-        receiverAddress: values[7]?.replace(/"/g,'') || '',
+        id,
+        senderName: (values[1]||'').trim(),
+        senderSurname: (values[2]||'').trim(),
+        senderPhone: (values[3]||'').trim(),
+        receiverName: (values[4]||'').trim(),
+        receiverSurname: (values[5]||'').trim(),
+        receiverPhone: (values[6]||'').trim(),
+        receiverAddress: (values[7]||'').trim(),
         weight: parseFloat(values[8]) || 0,
         shipPrice: parseFloat(values[9]) || 0,
         status: 'created',
         createdAt: getCurrentTime(),
-        trackingCode: values[12]?.replace(/"/g,'') || '',
-        shipType: values[13]?.replace(/"/g,'') || 'domestic',
+        trackingCode: (values[12]||'').trim(),
+        shipType: ((values[13]||'').trim() === 'international') ? 'international' : 'domestic',
         createdBy: currentUser?.id || 'admin1',
         createdByName: currentUser?.name || 'Admin'
       };
-      try{ await setDoc(doc(db,'shipments',id),data); imported++; }catch(err){}
+      try{ await setDoc(doc(db,'shipments',id),data); imported++; }catch(err){ errors++; }
     }
-    showNotification(`${imported} bağlama idxal edildi ✅`,'i');
+    showNotification(`${imported} idxal edildi${skipped?', '+skipped+' atlandı':''}${errors?', '+errors+' xəta':''} ✅`,'i');
     closeModal('modalImport');
     document.getElementById('csvImportFile').value = '';
   };
@@ -596,25 +824,31 @@ window.importCSV = function() {
 };
 
 window.createShipment = async function() {
-  const id = document.getElementById('newId').value;
+  const id = document.getElementById('newId').value.trim();
   if(!id){showNotification('ID boş ola bilməz','e');return;}
   if(shipments.find(s=>s.id===id)){showNotification('Bu ID artıq var','e');return;}
+  const senderName = document.getElementById('newSenderName').value.trim();
+  const receiverName = document.getElementById('newReceiverName').value.trim();
+  const receiverPhone = document.getElementById('newReceiverPhone').value.trim();
+  if(!senderName){showNotification('Göndərənin adını daxil edin','e');return;}
+  if(!receiverName){showNotification('Alanın adını daxil edin','e');return;}
+  if(!receiverPhone){showNotification('Alanın telefonunu daxil edin','e');return;}
   const shipType = document.getElementById('newShipType').value;
   const data = {
     id, category:document.getElementById('newCategory').value, payMethod:document.getElementById('newPayment').value,
     weight:parseFloat(document.getElementById('newWeight').value)||0, shipPrice:parseFloat(document.getElementById('newPrice').value)||0,
-    description:document.getElementById('newDesc').value, customerNote:document.getElementById('newCustomerNote').value, internalNote:document.getElementById('newInternalNote').value,
-    trackingCode:document.getElementById('newTrackingCode').value, shipType:shipType,
-    senderName:document.getElementById('newSenderName').value, senderSurname:document.getElementById('newSenderSurname').value,
-    senderPhone:document.getElementById('newSenderPhone').value, senderAddress:document.getElementById('newSenderAddress').value,
-    receiverName:document.getElementById('newReceiverName').value, receiverSurname:document.getElementById('newReceiverSurname').value,
-    receiverPhone:document.getElementById('newReceiverPhone').value, receiverAddress:document.getElementById('newReceiverAddress').value,
+    description:document.getElementById('newDesc').value.trim(), customerNote:document.getElementById('newCustomerNote').value.trim(), internalNote:document.getElementById('newInternalNote').value.trim(),
+    trackingCode:document.getElementById('newTrackingCode').value.trim(), shipType:shipType,
+    senderName, senderSurname:document.getElementById('newSenderSurname').value.trim(),
+    senderPhone:document.getElementById('newSenderPhone').value.trim(), senderAddress:document.getElementById('newSenderAddress').value.trim(),
+    receiverName, receiverSurname:document.getElementById('newReceiverSurname').value.trim(),
+    receiverPhone, receiverAddress:document.getElementById('newReceiverAddress').value.trim(),
     status:'created', createdAt:getCurrentTime(), createdBy:currentUser?.id||'admin1', createdByName:currentUser?.name||'Admin'
   };
   try{
     await setDoc(doc(db,'shipments',id),data);
     await addDoc(collection(db,'history'),{action:'created',message:`Yeni bağlama: ${id} (${shipType==='international'?'🌍 Beynəlxalq':'🇦🇿 Daxili'}) - Yaradan: ${data.createdByName}`,user:currentUser?.name||'—',role:currentRole,time:getCurrentTime()});
-    closeModal('modalNew'); showNotification(`✅ ${id} yaradıldı`,'i');
+    closeModal('modalNew'); showNotification(`✅ ${id} yaradıldı`,'s');
     setTimeout(()=>showShipmentQR(id),400);
   }catch(e){showNotification('Xəta: '+e.message,'e');}
 };
@@ -627,19 +861,19 @@ window.editShipment = function(id) {
     return;
   }
   document.getElementById('editContent').innerHTML = `
-    <div class="modal-header"><i class="fas fa-pen"></i> Bağlama Redaktəsi - ${s.id}</div>
-    <div class="sectionTitle">Əsas məlumatlar</div>
-    <div class="form-row"><div class="form-group"><label>Çəki (kg)</label><input class="form-input" id="editWeight" value="${s.weight||0}" type="number" step="0.1"></div><div class="form-group"><label>Məbləğ (AZN)</label><input class="form-input" id="editPrice" value="${s.shipPrice||0}" type="number" step="0.01"></div></div>
-    <div class="form-row"><div class="form-group"><label>Daşınma növü</label><select class="form-input" id="editShipType"><option value="domestic" ${s.shipType==='domestic'?'selected':''}>🇦🇿 Daxili</option><option value="international" ${s.shipType==='international'?'selected':''}>🌍 Beynəlxalq</option></select></div><div class="form-group"><label>Təsvir</label><input class="form-input" id="editDesc" value="${s.description||''}"></div></div>
-    <div class="sectionTitle">Göndərən</div>
-    <div class="form-row"><div class="form-group"><label>Ad</label><input class="form-input" id="editSenderName" value="${s.senderName||''}"></div><div class="form-group"><label>Soyad</label><input class="form-input" id="editSenderSurname" value="${s.senderSurname||''}"></div></div>
-    <div class="form-row"><div class="form-group"><label>Telefon</label><input class="form-input" id="editSenderPhone" value="${s.senderPhone||''}"></div><div class="form-group"><label>Ünvan</label><input class="form-input" id="editSenderAddress" value="${s.senderAddress||''}"></div></div>
-    <div class="sectionTitle">Alan</div>
-    <div class="form-row"><div class="form-group"><label>Ad</label><input class="form-input" id="editReceiverName" value="${s.receiverName||''}"></div><div class="form-group"><label>Soyad</label><input class="form-input" id="editReceiverSurname" value="${s.receiverSurname||''}"></div></div>
-    <div class="form-row"><div class="form-group"><label>Telefon</label><input class="form-input" id="editReceiverPhone" value="${s.receiverPhone||''}"></div><div class="form-group"><label>Ünvan</label><input class="form-input" id="editReceiverAddress" value="${s.receiverAddress||''}"></div></div>
-    <div class="form-row"><div class="form-group"><label>İzləmə kodu</label><input class="form-input" id="editTrackingCode" value="${s.trackingCode||''}"></div><div class="form-group"><label>Status</label><select class="form-input" id="editStatus"><option value="">Dəyişmə</option>${(s.shipType==='domestic'?DOMESTIC_STATUSES:INTERNATIONAL_STATUSES).map(st=>`<option value="${st}">${STATUS_LABELS[st]}</option>`).join('')}</select></div></div>
-    <div class="form-row"><div class="form-group"><label>Müştəri qeydi</label><textarea class="form-input" id="editCustomerNote" rows="2">${s.customerNote||''}</textarea></div><div class="form-group"><label>Daxili qeyd</label><textarea class="form-input" id="editInternalNote" rows="2">${s.internalNote||''}</textarea></div></div>
-    <button class="save-btn" onclick="saveShipmentEdit('${s.id}')"><i class="fas fa-save"></i> Dəyişiklikləri Saxla</button>
+    <div class="modal-header"><i class="fas fa-pen"></i> Bağlama Redaktəsi - ${esc(s.id)}</div>
+    <div class="section-title">Əsas məlumatlar</div>
+    <div class="form-row"><div class="form-group"><label>Çəki (kg)</label><input class="form-input" id="editWeight" value="${esc(s.weight||0)}" type="number" step="0.1"></div><div class="form-group"><label>Məbləğ (AZN)</label><input class="form-input" id="editPrice" value="${esc(s.shipPrice||0)}" type="number" step="0.01"></div></div>
+    <div class="form-row"><div class="form-group"><label>Daşınma növü</label><select class="form-input" id="editShipType"><option value="domestic" ${s.shipType==='domestic'?'selected':''}>🇦🇿 Daxili</option><option value="international" ${s.shipType==='international'?'selected':''}>🌍 Beynəlxalq</option></select></div><div class="form-group"><label>Təsvir</label><input class="form-input" id="editDesc" value="${esc(s.description||'')}"></div></div>
+    <div class="section-title">Göndərən</div>
+    <div class="form-row"><div class="form-group"><label>Ad</label><input class="form-input" id="editSenderName" value="${esc(s.senderName||'')}"></div><div class="form-group"><label>Soyad</label><input class="form-input" id="editSenderSurname" value="${esc(s.senderSurname||'')}"></div></div>
+    <div class="form-row"><div class="form-group"><label>Telefon</label><input class="form-input" id="editSenderPhone" value="${esc(s.senderPhone||'')}"></div><div class="form-group"><label>Ünvan</label><input class="form-input" id="editSenderAddress" value="${esc(s.senderAddress||'')}"></div></div>
+    <div class="section-title">Alan</div>
+    <div class="form-row"><div class="form-group"><label>Ad</label><input class="form-input" id="editReceiverName" value="${esc(s.receiverName||'')}"></div><div class="form-group"><label>Soyad</label><input class="form-input" id="editReceiverSurname" value="${esc(s.receiverSurname||'')}"></div></div>
+    <div class="form-row"><div class="form-group"><label>Telefon</label><input class="form-input" id="editReceiverPhone" value="${esc(s.receiverPhone||'')}"></div><div class="form-group"><label>Ünvan</label><input class="form-input" id="editReceiverAddress" value="${esc(s.receiverAddress||'')}"></div></div>
+    <div class="form-row"><div class="form-group"><label>İzləmə kodu</label><input class="form-input" id="editTrackingCode" value="${esc(s.trackingCode||'')}"></div><div class="form-group"><label>Status</label><select class="form-input" id="editStatus"><option value="">Dəyişmə</option>${(s.shipType==='domestic'?DOMESTIC_STATUSES:INTERNATIONAL_STATUSES).map(st=>`<option value="${esc(st)}" ${st===s.status?'selected':''}>${esc(STATUS_LABELS[st])}</option>`).join('')}</select></div></div>
+    <div class="form-row"><div class="form-group"><label>Müştəri qeydi</label><textarea class="form-input" id="editCustomerNote" rows="2">${esc(s.customerNote||'')}</textarea></div><div class="form-group"><label>Daxili qeyd</label><textarea class="form-input" id="editInternalNote" rows="2">${esc(s.internalNote||'')}</textarea></div></div>
+    <button class="save-btn" onclick="saveShipmentEdit('${escAttr(s.id)}')"><i class="fas fa-save"></i> Dəyişiklikləri Saxla</button>
   `;
   openModal('modalEdit');
 };
@@ -651,24 +885,24 @@ window.saveShipmentEdit = async function(id) {
   const newPrice = parseFloat(document.getElementById('editPrice').value);
   if(!isNaN(newPrice)) updates.shipPrice = newPrice;
   updates.shipType = document.getElementById('editShipType').value;
-  updates.description = document.getElementById('editDesc').value;
-  updates.senderName = document.getElementById('editSenderName').value;
-  updates.senderSurname = document.getElementById('editSenderSurname').value;
-  updates.senderPhone = document.getElementById('editSenderPhone').value;
-  updates.senderAddress = document.getElementById('editSenderAddress').value;
-  updates.receiverName = document.getElementById('editReceiverName').value;
-  updates.receiverSurname = document.getElementById('editReceiverSurname').value;
-  updates.receiverPhone = document.getElementById('editReceiverPhone').value;
-  updates.receiverAddress = document.getElementById('editReceiverAddress').value;
-  updates.trackingCode = document.getElementById('editTrackingCode').value;
-  updates.customerNote = document.getElementById('editCustomerNote').value;
-  updates.internalNote = document.getElementById('editInternalNote').value;
+  updates.description = document.getElementById('editDesc').value.trim();
+  updates.senderName = document.getElementById('editSenderName').value.trim();
+  updates.senderSurname = document.getElementById('editSenderSurname').value.trim();
+  updates.senderPhone = document.getElementById('editSenderPhone').value.trim();
+  updates.senderAddress = document.getElementById('editSenderAddress').value.trim();
+  updates.receiverName = document.getElementById('editReceiverName').value.trim();
+  updates.receiverSurname = document.getElementById('editReceiverSurname').value.trim();
+  updates.receiverPhone = document.getElementById('editReceiverPhone').value.trim();
+  updates.receiverAddress = document.getElementById('editReceiverAddress').value.trim();
+  updates.trackingCode = document.getElementById('editTrackingCode').value.trim();
+  updates.customerNote = document.getElementById('editCustomerNote').value.trim();
+  updates.internalNote = document.getElementById('editInternalNote').value.trim();
   const newStatus = document.getElementById('editStatus').value;
   if(newStatus) updates.status = newStatus;
   try{
     await updateDoc(doc(db,'shipments',id),updates);
-    await addDoc(collection(db,'history'),{action:'edit',message:`${id}: Bağlama məlumatları redaktə edildi (Admin: ${currentUser?.name})`,user:currentUser?.name||'—',role:currentRole,time:getCurrentTime()});
-    showNotification('Məlumatlar yeniləndi ✅','i');
+    await addDoc(collection(db,'history'),{action:'edit',message:`${id}: Bağlama məlumatları redaktə edildi (${currentUser?.name})`,user:currentUser?.name||'—',role:currentRole,time:getCurrentTime()});
+    showNotification('Məlumatlar yeniləndi ✅','s');
     closeModal('modalEdit');
   }catch(e){showNotification('Xəta: '+e.message,'e');}
 };
@@ -680,31 +914,40 @@ window.viewShipmentDetails = function(id) {
   const canChange = hasPermission('status');
   const isAdmin = currentRole === 'admin';
   const canEdit = hasPermission('edit');
-  const progressBar = statuses.map((st,i)=>`<div class="progress-step"><div class="progress-dot ${i<idx?'progress-done':i===idx?'progress-current':''}"><i class="fas ${i<idx?'fa-check':i===idx?'fa-box':'fa-circle'}"></i></div><div class="progress-label">${STATUS_LABELS[st]}</div></div>${i<statuses.length-1?`<div class="progress-line ${i<idx?'done':''}"></div>`:''}`).join('');
-  const nextStatuses = isAdmin ? statuses.filter((_,i)=>i>idx) : (canChange && ROLE_TO_NEXT_STATUS[currentRole] ? [ROLE_TO_NEXT_STATUS[currentRole][s.shipType||'domestic']] : []).filter(st=>statuses.indexOf(st)>idx);
-  const prevStatuses = isAdmin ? statuses.filter((_,i)=>i<idx) : [];
+  const progressBar = statuses.map((st,i)=>`<div class="progress-step"><div class="progress-dot ${i<idx?'progress-done':i===idx?'progress-current':''}"><i class="fas ${i<idx?'fa-check':i===idx?'fa-box':'fa-circle'}"></i></div><div class="progress-label">${esc(STATUS_LABELS[st])}</div></div>${i<statuses.length-1?`<div class="progress-line ${i<idx?'done':''}"></div>`:''}`).join('');
+  let nextStatuses = [];
+  if (isAdmin) {
+    nextStatuses = statuses.slice(idx + 1);
+  } else if (canChange) {
+    const expected = ROLE_TO_NEXT_STATUS[currentRole]?.[s.shipType||'domestic'];
+    if (expected && statuses.indexOf(expected) > idx) nextStatuses = [expected];
+  }
+  const prevStatuses = isAdmin ? statuses.slice(0, idx) : [];
+  const sid = escAttr(s.id);
   document.getElementById('detailContent').innerHTML = `
     <div class="modal-header"><i class="fas fa-box"></i> Bağlama Detalları</div>
     <div class="progress-track">${progressBar}</div>
     <div class="detail-grid">
-      <div class="detail-card"><label>ID</label><span class="mono">${s.id}</span></div>
-      <div class="detail-card"><label>Çəki</label><span>${s.weight} kg</span></div>
-      <div class="detail-card"><label>Məbləğ</label><span>${s.shipPrice||0} ₼</span></div>
+      <div class="detail-card"><label>ID</label><span class="mono">${esc(s.id)}</span></div>
+      <div class="detail-card"><label>Çəki</label><span>${esc(s.weight||0)} kg</span></div>
+      <div class="detail-card"><label>Məbləğ</label><span>${esc(s.shipPrice||0)} ₼</span></div>
       <div class="detail-card"><label>Daşınma</label><span>${s.shipType==='international'?'🌍 Beynəlxalq':'🇦🇿 Daxili'}</span></div>
-      <div class="detail-card"><label>Yaradan</label><span>${s.createdByName||s.createdBy||'—'}</span></div>
-      <div class="detail-card"><label>Status</label><span class="stb ${STATUS_CLASS[s.status]}">${STATUS_LABELS[s.status]}</span></div>
+      <div class="detail-card"><label>Yaradan</label><span>${esc(s.createdByName||s.createdBy||'—')}</span></div>
+      <div class="detail-card"><label>Status</label><span class="stb ${STATUS_CLASS[s.status]||'s1'}">${esc(STATUS_LABELS[s.status]||s.status)}</span></div>
     </div>
-    ${s.trackingCode?`<div class="detail-card gold"><label>🌍 İzləmə kodu</label><span class="mono">${s.trackingCode}</span></div>`:''}
-    <div class="sectionTitle">Göndərən</div>
-    <div class="detail-grid"><div class="detail-card"><label>Ad Soyad</label><span>${s.senderName} ${s.senderSurname}</span></div><div class="detail-card"><label>Telefon</label><span>${s.senderPhone||'—'}</span></div><div class="detail-card full"><label>Ünvan</label><span>${s.senderAddress||'—'}</span></div></div>
-    <div class="sectionTitle">Alan</div>
-    <div class="detail-grid"><div class="detail-card"><label>Ad Soyad</label><span>${s.receiverName} ${s.receiverSurname}</span></div><div class="detail-card"><label>Telefon</label><span>${s.receiverPhone||'—'}</span></div><div class="detail-card full"><label>Çatdırılma ünvanı</label><span>${s.receiverAddress||'—'}</span></div></div>
-    ${nextStatuses.length?`<div class="status-buttons">${nextStatuses.map(st=>`<button class="status-btn status-next" onclick="changeShipmentStatus('${s.id}','${st}')"><i class="fas fa-arrow-right"></i>${STATUS_LABELS[st]}</button>`).join('')}</div>`:''}
-    ${prevStatuses.length?`<div class="status-buttons"><div class="sectionTitle">Geri (Yalnız Admin)</div>${prevStatuses.map(st=>`<button class="status-btn status-prev" onclick="rollbackShipmentStatus('${s.id}','${st}')"><i class="fas fa-arrow-left"></i>${STATUS_LABELS[st]}</button>`).join('')}</div>`:''}
-    <div class="actions" style="margin-top:16px;gap:8px">
-      <button class="btn btn-gold btn-sm" onclick="showShipmentQR('${s.id}')"><i class="fas fa-qrcode"></i> QR</button>
-      ${canEdit?`<button class="btn btn-blue btn-sm" onclick="closeModal('modalDetail');editShipment('${s.id}')"><i class="fas fa-pen"></i> Redaktə</button>`:''}
-      <button class="btn btn-wa btn-sm" onclick="sendWhatsApp('${s.receiverPhone}', '${s.id}', '${s.status}', '${s.receiverName} ${s.receiverSurname}')"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+    ${s.trackingCode?`<div class="detail-card gold full"><label>🌍 İzləmə kodu</label><span class="mono">${esc(s.trackingCode)}</span></div>`:''}
+    <div class="section-title">Göndərən</div>
+    <div class="detail-grid"><div class="detail-card"><label>Ad Soyad</label><span>${esc((s.senderName||'')+' '+(s.senderSurname||''))}</span></div><div class="detail-card"><label>Telefon</label><span>${esc(s.senderPhone||'—')}</span></div><div class="detail-card full"><label>Ünvan</label><span>${esc(s.senderAddress||'—')}</span></div></div>
+    <div class="section-title">Alan</div>
+    <div class="detail-grid"><div class="detail-card"><label>Ad Soyad</label><span>${esc((s.receiverName||'')+' '+(s.receiverSurname||''))}</span></div><div class="detail-card"><label>Telefon</label><span>${esc(s.receiverPhone||'—')}</span></div><div class="detail-card full"><label>Çatdırılma ünvanı</label><span>${esc(s.receiverAddress||'—')}</span></div></div>
+    ${s.customerNote?`<div class="section-title">Müştəri qeydi</div><div class="detail-card full"><span>${esc(s.customerNote)}</span></div>`:''}
+    ${s.internalNote && isAdmin?`<div class="section-title">Daxili qeyd</div><div class="detail-card full"><span>${esc(s.internalNote)}</span></div>`:''}
+    ${nextStatuses.length?`<div class="section-title">Statusu dəyiş</div><div class="status-buttons">${nextStatuses.map(st=>`<button class="status-btn status-next" onclick="changeShipmentStatus('${sid}','${escAttr(st)}')"><i class="fas fa-arrow-right"></i> ${esc(STATUS_LABELS[st])}</button>`).join('')}</div>`:''}
+    ${prevStatuses.length?`<div class="section-title">Geri (Yalnız Admin)</div><div class="status-buttons">${prevStatuses.map(st=>`<button class="status-btn status-prev" onclick="rollbackShipmentStatus('${sid}','${escAttr(st)}')"><i class="fas fa-arrow-left"></i> ${esc(STATUS_LABELS[st])}</button>`).join('')}</div>`:''}
+    <div class="actions" style="margin-top:20px;gap:8px">
+      <button class="btn btn-gold btn-sm" onclick="showShipmentQR('${sid}')"><i class="fas fa-qrcode"></i> QR</button>
+      ${canEdit?`<button class="btn btn-blue btn-sm" onclick="closeModal('modalDetail');editShipment('${sid}')"><i class="fas fa-pen"></i> Redaktə</button>`:''}
+      <button class="btn btn-wa btn-sm" onclick="sendWhatsApp('${escAttr(s.receiverPhone||'')}','${sid}','${escAttr(s.status)}','${escAttr((s.receiverName||'')+' '+(s.receiverSurname||''))}')"><i class="fab fa-whatsapp"></i> WhatsApp</button>
       <button class="btn btn-ghost btn-sm" onclick="closeModal('modalDetail')">Bağla</button>
     </div>
   `;
@@ -720,7 +963,7 @@ window.changeShipmentStatus = async function(id,newStatus) {
   try{
     await updateDoc(doc(db,'shipments',id),{status:newStatus});
     await addDoc(collection(db,'history'),{action:newStatus,message:`${id}: ${STATUS_LABELS[s.status]} → ${STATUS_LABELS[newStatus]} (İcra edən: ${currentUser?.name} / ${ROLE_LABELS[currentRole]})`,user:currentUser?.name||'—',role:currentRole,time:getCurrentTime()});
-    showNotification(`Status: ${STATUS_LABELS[newStatus]} ✅`,'i');
+    showNotification(`Status: ${STATUS_LABELS[newStatus]} ✅`,'s');
     closeModal('modalDetail');
   }catch(e){showNotification('Xəta: '+e.message,'e');}
 };
@@ -746,14 +989,22 @@ window.printShipmentLabel = function(id) {
   setTimeout(()=>{
     const canvas=tmp.querySelector('canvas'); const qrImg=canvas?canvas.toDataURL():'';
     document.body.removeChild(tmp);
-    const mk=(label)=>`<div class="pd"><div class="clabel">${label}</div><div class="ph"><div><h1>📦 GoldExpress</h1></div><div>${getCurrentTime()}</div></div><div class="qr-c">${qrImg?`<img src="${qrImg}" width="100">`:'QR'}</div><div class="onum">${s.id}</div><div class="sbar">${STATUS_LABELS[s.status]}</div><table><tr><th>Çəki:</th><td>${s.weight} kg</td></tr><tr><th>Məbləğ:</th><td>${s.shipPrice||0} ₼</td></tr></table><div class="blk"><strong>Göndərən:</strong><p>${s.senderName} ${s.senderSurname}<br>${s.senderPhone||''}</p></div><div class="blk"><strong>Alan:</strong><p>${s.receiverName} ${s.receiverSurname}<br>${s.receiverPhone||''}<br>${s.receiverAddress||''}</p></div>${s.trackingCode?`<div class="blk"><strong>İzləmə:</strong><p>${s.trackingCode}</p></div>`:''}<div class="foot">GoldExpress Logistics</div></div>`;
+    const mk=(label)=>`<div class="pd"><div class="clabel">${esc(label)}</div><div class="ph"><div><h1>📦 GoldExpress</h1></div><div>${esc(getCurrentTime())}</div></div><div class="qr-c">${qrImg?`<img src="${qrImg}" width="120" height="120">`:'QR'}</div><div class="onum">${esc(s.id)}</div><div class="sbar">${esc(STATUS_LABELS[s.status]||s.status)}</div><table><tr><th>Çəki:</th><td>${esc(s.weight||0)} kg</td></tr><tr><th>Məbləğ:</th><td>${esc(s.shipPrice||0)} ₼</td></tr><tr><th>Daşınma:</th><td>${s.shipType==='international'?'Beynəlxalq':'Daxili'}</td></tr></table><div class="blk"><strong>Göndərən:</strong><p>${esc((s.senderName||'')+' '+(s.senderSurname||''))}<br>${esc(s.senderPhone||'')}</p></div><div class="blk"><strong>Alan:</strong><p>${esc((s.receiverName||'')+' '+(s.receiverSurname||''))}<br>${esc(s.receiverPhone||'')}<br>${esc(s.receiverAddress||'')}</p></div>${s.trackingCode?`<div class="blk"><strong>İzləmə kodu:</strong><p>${esc(s.trackingCode)}</p></div>`:''}<div class="foot">GoldExpress Logistics &nbsp;|&nbsp; ${esc(window.location.origin+window.location.pathname)}?track=${esc(s.id)}</div></div>`;
     const pa=document.getElementById('printArea'); pa.innerHTML=mk('MÜŞTƏRİ NÜSXƏSİ')+mk('BAĞLAMA ETİKETİ'); pa.style.display='block';
     setTimeout(()=>{window.print(); pa.style.display='none';},300);
     closeModal('modalQR');
   },200);
 };
 
-window.deleteShipment = async function(id){ if(!confirm(`"${id}" silinsin?`)) return; try{ await deleteDoc(doc(db,'shipments',id)); showNotification('Silindi','i'); }catch(e){showNotification('Xəta','e');} };
+window.deleteShipment = async function(id){
+  if(!hasPermission('delete')){showNotification('Silmək hüququnuz yoxdur','e');return;}
+  if(!confirm(`"${id}" silinsin? Bu əməliyyat geri alına bilməz!`)) return;
+  try{
+    await deleteDoc(doc(db,'shipments',id));
+    await addDoc(collection(db,'history'),{action:'delete',message:`${id} bağlaması silindi (${currentUser?.name})`,user:currentUser?.name||'—',role:currentRole,time:getCurrentTime()});
+    showNotification('Silindi','i');
+  }catch(e){showNotification('Xəta: '+e.message,'e');}
+};
 
 window.openScanner = function() { openModal('modalScan'); document.getElementById('qrScannerReader').innerHTML=''; document.getElementById('scanResultArea').innerHTML=''; try{ scannerInstance=new Html5Qrcode("qrScannerReader"); scannerInstance.start({facingMode:"environment"},{fps:10,qrbox:{width:250,height:250}},onQRScanSuccess,()=>{}); }catch(e){ document.getElementById('qrScannerReader').innerHTML='<div style="padding:40px;text-align:center;color:var(--red)">📷 Kamera icazəsi tələb olunur</div>'; } };
 window.closeScanner = function() { closeModal('modalScan'); if(scannerInstance) scannerInstance.stop().then(()=>scannerInstance.clear()).catch(()=>{}).finally(()=>scannerInstance=null); };
@@ -762,7 +1013,7 @@ async function onQRScanSuccess(decodedText) {
   if(scannerInstance) try{ await scannerInstance.stop(); scannerInstance.clear(); scannerInstance=null; }catch(e){}
   const s = shipments.find(s=>s.id===decodedText);
   const res = document.getElementById('scanResultArea');
-  if(!s){ res.innerHTML=`<div style="background:rgba(230,57,70,.1);border-radius:12px;padding:16px;text-align:center"><div style="color:var(--red);font-weight:700">❌ ${decodedText} tapılmadı</div></div>`; return; }
+  if(!s){ res.innerHTML=`<div style="background:rgba(230,57,70,.1);border-radius:12px;padding:16px;text-align:center"><div style="color:var(--red);font-weight:700">❌ ${esc(decodedText)} tapılmadı</div></div>`; return; }
   const statuses = s.shipType==='domestic'?DOMESTIC_STATUSES:INTERNATIONAL_STATUSES;
   const idx = statuses.indexOf(s.status);
   const expectedNext = ROLE_TO_NEXT_STATUS[currentRole] ? ROLE_TO_NEXT_STATUS[currentRole][s.shipType||'domestic'] : null;
@@ -771,11 +1022,12 @@ async function onQRScanSuccess(decodedText) {
     try{
       await updateDoc(doc(db,'shipments',decodedText),{status:expectedNext});
       await addDoc(collection(db,'history'),{action:expectedNext,message:`${decodedText}: ${STATUS_LABELS[s.status]} → ${STATUS_LABELS[expectedNext]} [QR skan - ${currentUser?.name} / ${ROLE_LABELS[currentRole]}]`,user:currentUser?.name||'—',role:currentRole,time:getCurrentTime()});
-      autoMsg=`<div style="background:rgba(34,197,94,.15);border-radius:10px;padding:12px;margin-top:12px;color:var(--green);text-align:center;font-weight:700">✅ Status dəyişdirildi: ${STATUS_LABELS[expectedNext]}<br><small>İcra edən: ${currentUser?.name} (${ROLE_LABELS[currentRole]})</small></div>`;
+      autoMsg=`<div style="background:rgba(34,197,94,.15);border-radius:10px;padding:12px;margin-top:12px;color:var(--green);text-align:center;font-weight:700">✅ Status dəyişdirildi: ${esc(STATUS_LABELS[expectedNext])}<br><small>İcra edən: ${esc(currentUser?.name||'')} (${esc(ROLE_LABELS[currentRole]||'')})</small></div>`;
       showSync('Status dəyişdirildi','ok');
-    }catch(e){ autoMsg=`<div style="color:var(--red);padding:10px">Xəta baş verdi</div>`; }
-  } else { autoMsg=`<div style="color:var(--t2);padding:12px;text-align:center">📌 Cari status: <strong>${STATUS_LABELS[s.status]}</strong><br><small>Sizin rolunuz (${ROLE_LABELS[currentRole]}) bu mərhələdə status dəyişə bilməz</small></div>`; }
-  res.innerHTML = `<div style="background:rgba(34,197,94,.08);border-radius:14px;padding:16px"><div style="font-family:monospace;color:var(--gold);font-weight:700">📦 ${decodedText}</div><div style="margin:8px 0">${s.senderName} ${s.senderSurname} → ${s.receiverName}</div><div><span class="stb ${STATUS_CLASS[s.status]}">${STATUS_LABELS[s.status]}</span> <span style="margin-left:8px">${s.shipType==='international'?'🌍 Beynəlxalq':'🇦🇿 Daxili'}</span></div>${autoMsg}<div style="display:flex;gap:10px;margin-top:14px"><button class="btn btn-wa btn-sm" onclick="sendWhatsApp('${s.receiverPhone}', '${decodedText}', '${expectedNext||s.status}', '${s.receiverName} ${s.receiverSurname}');closeScanner()"><i class="fab fa-whatsapp"></i> WhatsApp</button><button class="btn btn-ghost btn-sm" onclick="closeScanner();viewShipmentDetails('${decodedText}')">Detallar</button><button class="btn btn-ghost btn-sm" onclick="closeScanner()">Bağla</button></div></div>`;
+    }catch(e){ autoMsg=`<div style="color:var(--red);padding:10px">Xəta: ${esc(e.message)}</div>`; }
+  } else { autoMsg=`<div style="color:var(--t2);padding:12px;text-align:center">📌 Cari status: <strong>${esc(STATUS_LABELS[s.status]||s.status)}</strong><br><small>Sizin rolunuz (${esc(ROLE_LABELS[currentRole]||currentRole)}) bu mərhələdə status dəyişə bilməz</small></div>`; }
+  const sid = escAttr(decodedText);
+  res.innerHTML = `<div style="background:rgba(34,197,94,.08);border-radius:14px;padding:16px"><div style="font-family:'IBM Plex Mono',monospace;color:var(--gold);font-weight:700">📦 ${esc(decodedText)}</div><div style="margin:8px 0">${esc((s.senderName||'')+' '+(s.senderSurname||''))} → ${esc(s.receiverName||'')}</div><div><span class="stb ${STATUS_CLASS[s.status]||'s1'}">${esc(STATUS_LABELS[s.status]||s.status)}</span> <span style="margin-left:8px">${s.shipType==='international'?'🌍 Beynəlxalq':'🇦🇿 Daxili'}</span></div>${autoMsg}<div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap"><button class="btn btn-wa btn-sm" onclick="sendWhatsApp('${escAttr(s.receiverPhone||'')}','${sid}','${escAttr(expectedNext||s.status)}','${escAttr((s.receiverName||'')+' '+(s.receiverSurname||''))}');closeScanner()"><i class="fab fa-whatsapp"></i> WhatsApp</button><button class="btn btn-ghost btn-sm" onclick="closeScanner();viewShipmentDetails('${sid}')">Detallar</button><button class="btn btn-ghost btn-sm" onclick="closeScanner()">Bağla</button></div></div>`;
 }
 
 const PERM_NAMES = { create:'Bağlama yarat', view:'Bax', scan:'QR skan', status:'Status dəyiş', print:'Çap', delete:'Sil', employees:'İşçilər', finance:'Maliyyə', track:'İzləmə', history:'Tarixçə', import:'CSV idxal', edit:'Redaktə' };
@@ -804,16 +1056,31 @@ window.saveEmployee = async function() {
   const name=document.getElementById('employeeName').value.trim(), surname=document.getElementById('employeeSurname').value.trim();
   const username=document.getElementById('employeeUsername').value.trim(), password=document.getElementById('employeePassword').value.trim();
   if(!name||!surname||!username||!password){showNotification('Ad, soyad, istifadəçi adı, şifrə tələb olunur','e');return;}
+  // Check duplicate username (when adding new or editing different user)
+  const dup = employees.find(e => e.username === username && e.id !== id);
+  if (dup) { showNotification('Bu istifadəçi adı artıq mövcuddur','e'); return; }
   const permissions={}; PERMISSION_KEYS.forEach(k=>{const el=document.getElementById('perm_'+k); permissions[k]=el&&el.checked?1:0;});
   const data={name,surname,username,password,role:document.getElementById('employeeRole').value,phone:document.getElementById('employeePhone').value.trim(),email:document.getElementById('employeeEmail').value.trim(),active:parseInt(document.getElementById('employeeStatus').value),permissions};
   try{
     const docId=id||('emp_'+Date.now().toString(36));
     await setDoc(doc(db,'employees',docId),{...data,id:docId});
-    showNotification(`İşçi ${id?'yeniləndi':'əlavə edildi'} ✅`,'i');
+    showNotification(`İşçi ${id?'yeniləndi':'əlavə edildi'} ✅`,'s');
     closeModal('modalEmployee');
   }catch(e){showNotification('Xəta: '+e.message,'e');}
 };
-window.deleteEmployee = async function(id,name){ if(id===currentUser?.id){showNotification('Öz hesabınızı silə bilməzsiniz','e');return;} if(!confirm(`"${name}" silinsin?`)) return; try{ await deleteDoc(doc(db,'employees',id)); showNotification('Silindi','i'); }catch(e){showNotification('Xəta','e');} };
+window.deleteEmployee = async function(id,name){
+  if(id===currentUser?.id){showNotification('Öz hesabınızı silə bilməzsiniz','e');return;}
+  const target = employees.find(e => e.id === id);
+  if (target?.role === 'admin') {
+    const activeAdmins = employees.filter(e => e.role === 'admin' && (e.active === 1 || e.active === undefined));
+    if (activeAdmins.length <= 1) {
+      showNotification('Sistemin son adminini silmək olmaz','e');
+      return;
+    }
+  }
+  if(!confirm(`"${name}" silinsin?`)) return;
+  try{ await deleteDoc(doc(db,'employees',id)); showNotification('Silindi','i'); }catch(e){showNotification('Xəta: '+e.message,'e');}
+};
 
 window.doLogin = async function() {
   const u=document.getElementById('loginUsername').value.trim(), p=document.getElementById('loginPassword').value;
@@ -822,18 +1089,19 @@ window.doLogin = async function() {
   if(!user){showNotification('İstifadəçi adı və ya şifrə yanlışdır','e');return;}
   currentUser=user; currentRole=user.role;
   document.getElementById('loginWrap').style.display='none'; document.getElementById('app').style.display='block';
-  document.getElementById('userAvatar').textContent=user.name.charAt(0);
-  document.getElementById('userName').textContent=user.name+' '+user.surname;
+  document.getElementById('userAvatar').textContent=(user.name||'?').charAt(0);
+  document.getElementById('userName').textContent=(user.name||'')+' '+(user.surname||'');
   document.getElementById('userRoleLabel').textContent=ROLE_LABELS[currentRole]||currentRole;
   buildSidebar(); changePage('dashboard');
-  showNotification(`Xoş gəldiniz, ${user.name}! 👋`,'i');
+  showNotification(`Xoş gəldiniz, ${user.name}! 👋`,'s');
 };
 window.doLogout = function() {
   if(!confirm('Sistemdən çıxmaq istəyirsiniz?')) return;
   document.getElementById('app').style.display='none';
-  currentUser=null; currentRole='admin';
+  currentUser=null; currentRole='admin'; currentPage='dashboard';
   document.getElementById('loginUsername').value=''; document.getElementById('loginPassword').value='';
   document.getElementById('loginWrap').style.display='flex';
+  setTimeout(()=>document.getElementById('loginUsername')?.focus(),100);
   showNotification('Sistemdən çıxıldı','i');
 };
 
@@ -853,7 +1121,7 @@ if (trackParam) {
         <div class="logo">📦</div>
         <h1>GoldExpress</h1>
         <p>Kargo İdarəetmə Sistemi v11</p>
-        <div class="input-group"><i class="fas fa-user"></i><input type="text" id="loginUsername" placeholder="İstifadəçi adı"></div>
+        <div class="input-group"><i class="fas fa-user"></i><input type="text" id="loginUsername" placeholder="İstifadəçi adı" autofocus onkeydown="if(event.key==='Enter')doLogin()"></div>
         <div class="input-group"><i class="fas fa-lock"></i><input type="password" id="loginPassword" placeholder="Şifrə" onkeydown="if(event.key==='Enter')doLogin()"><button type="button" class="toggle-pwd" onclick="togglePassword()"><i class="fas fa-eye"></i></button></div>
         <button class="login-btn" onclick="doLogin()"><i class="fas fa-sign-in-alt"></i> Sistemə Giriş</button>
         <div class="login-hint">📋 Test girişləri:<br>🔑 admin / admin123 &nbsp;|&nbsp; 👤 operator / oper123<br>🏭 warehouse / anbar123 &nbsp;|&nbsp; 🛵 courier / kuryer123</div>
@@ -869,8 +1137,37 @@ if (trackParam) {
   `;
   
   // Initialize Firebase listeners for the app
-  onSnapshot(query(collection(db,'shipments'),orderBy('createdAt','desc')),snap=>{ shipments=snap.docs.map(d=>({...d.data()})); if(currentUser && ['dashboard','shipments','warehouse','courier','report','finance','customers'].includes(currentPage)) renderPage(currentPage); showSync('Sinxronlaşdı','ok'); });
-  onSnapshot(collection(db,'employees'),snap=>{ if(snap.empty){ DEFAULT_EMPLOYEES.forEach(e=>setDoc(doc(db,'employees',e.id),e)); employees=[...DEFAULT_EMPLOYEES]; } else employees=snap.docs.map(d=>({...d.data()})); if(currentPage==='employees' && currentUser) renderPage('employees'); });
+  unsubShipments = onSnapshot(query(collection(db,'shipments'),orderBy('createdAt','desc')), snap => {
+    shipments = snap.docs.map(d=>({...d.data()}));
+    if (currentUser && ['dashboard','shipments','warehouse','courier','report','finance','customers'].includes(currentPage)) {
+      // Preserve search/filter state on shipments page
+      if (currentPage === 'shipments') {
+        const oldQ = document.getElementById('searchInput')?.value || '';
+        const oldSt = document.getElementById('statusFilter')?.value || 'all';
+        renderPage(currentPage);
+        const sInp = document.getElementById('searchInput');
+        const sSel = document.getElementById('statusFilter');
+        if (sInp) sInp.value = oldQ;
+        if (sSel) sSel.value = oldSt;
+        if (oldQ || oldSt !== 'all') applyFilters();
+      } else {
+        renderPage(currentPage);
+      }
+    }
+    showSync('Sinxronlaşdı','ok');
+  }, err => {
+    console.error('Shipments listener error:', err);
+    showNotification('Verilənlər bazası xətası: '+err.message, 'e');
+  });
+  unsubEmployees = onSnapshot(collection(db,'employees'), snap => {
+    if (snap.empty) {
+      DEFAULT_EMPLOYEES.forEach(e => setDoc(doc(db,'employees',e.id), e));
+      employees = [...DEFAULT_EMPLOYEES];
+    } else {
+      employees = snap.docs.map(d=>({...d.data()}));
+    }
+    if (currentPage === 'employees' && currentUser) renderPage('employees');
+  }, err => console.error('Employees listener error:', err));
   
   setTimeout(()=>{ document.getElementById('loadingOverlay')?.classList.add('out'); },500);
 }
