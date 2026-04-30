@@ -281,7 +281,6 @@ input::placeholder,textarea::placeholder{color:var(--text3);opacity:.7}
 </style>
 </head>
 <body>
-
 <div id="appRoot"></div>
 <div id="loadingScreen" style="position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);z-index:9998;transition:opacity .35s">
   <div style="font-size:3.5rem;animation:bounce 1s infinite">📦</div>
@@ -409,9 +408,8 @@ const INTERNATIONAL= ['created','courier_pickup','warehouse_az','sent_to_tr','wa
 
 const LABEL={
   created:'Yaradıldı', courier_pickup:'Kuryer götürdü', warehouse_az:'AZ Anbarında',
-  sent_to_tr:'Türkiyəyə göndərildi', warehouse_tr:'TR Ofisində',
-  international:'Beynəlxalq daşınmada', arrived:'Təyinat ölkəsinə çatdı',
-  courier_delivery:'Kuryer çatdırır', delivered:'Çatdırıldı', done:'Tamamlandı'
+  sent_to_tr:'Türkiyəyə göndərildi', warehouse_tr:'TR Ofisində', international:'Beynəlxalq daşınmada',
+  arrived:'Təyinat ölkəsinə çatdı', courier_delivery:'Kuryer çatdırır', delivered:'Çatdırıldı', done:'Tamamlandı'
 };
 const BADGE_CLS={
   created:'created', courier_pickup:'courier_pickup', warehouse_az:'warehouse_az',
@@ -487,6 +485,7 @@ function renderTable(list){
   return`<div class="table-wrap"><div class="table-head"><div>ID</div><div>Göndərən</div><div>Çəki/Məbləğ</div><div>Alan</div><div>Ünvan</div><div>Tarix</div><div>Status</div><div>Əməliyyat</div></div>${list.map(s=>`<div class="table-row"><div class="id" onclick="viewDetail('${escA(s.id)}')">${esc(s.id)}</div><div>${esc(s.senderName||'')} ${esc(s.senderSurname||'')}<br><small style="color:var(--text3)">${esc(s.senderPhone||'')}</small></div><div>${esc(s.weight||0)}kg<br><span style="color:var(--gold)">${esc(s.shipPrice||0)}₼</span></div><div>${esc(s.receiverName||'')} ${esc(s.receiverSurname||'')}<br><small style="color:var(--text3)">${esc(s.receiverPhone||'')}</small></div><div><small style="color:var(--text2)">${esc((s.receiverAddress||'').substring(0,35))}</small></div><div><small style="color:var(--text3)">${esc((s.createdAt||'').slice(0,10))}</small></div><div><span class="badge ${BADGE_CLS[s.status]||'created'}">${esc(LABEL[s.status]||s.status)}</span></div><div class="actions-bar"><button class="action-btn act-view" title="Bax" onclick="viewDetail('${escA(s.id)}')"><i class="fas fa-eye"></i></button><button class="action-btn act-qr" title="QR" onclick="showQR('${escA(s.id)}')"><i class="fas fa-qrcode"></i></button>${can('edit')?`<button class="action-btn act-edit" title="Redaktə" onclick="editShip('${escA(s.id)}')"><i class="fas fa-pen"></i></button>`:''}<button class="action-btn act-wa" title="WhatsApp" onclick="sendWA('${escA(s.receiverPhone||'')}','${escA(s.id)}','${escA(s.status)}','${escA((s.receiverName||'')+' '+(s.receiverSurname||''))}')"><i class="fab fa-whatsapp"></i></button>${can('print')?`<button class="action-btn act-print" title="Çap" onclick="printLabel('${escA(s.id)}')"><i class="fas fa-print"></i></button>`:''}${can('delete')?`<button class="action-btn act-del" title="Sil" onclick="delShip('${escA(s.id)}')"><i class="fas fa-trash"></i></button>`:''}</div></div>`).join('')}</div>`;
 }
 
+// ===== RENDER PAGES =====
 function renderPage(p){
   const main=document.getElementById('mainContent');if(!main)return;
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -655,7 +654,165 @@ window.rollbackStatus=async(id,prev)=>{
   try{await updateDoc(doc(db,'shipments',id),{status:prev});await addDoc(collection(db,'history'),{action:prev,message:`${id}: GERİ ALMA → ${LABEL[prev]} (${currentUser?.name})`,user:currentUser?.name,role:currentRole,time:now()});toast('🔄 Geri alındı');closeModal('modalDetail');}catch(e){toast('Xəta: '+e.message,true);}
 };
 
-// ... все остальные функции (showQR, printQR, printLabel, editShip, saveEdit, delShip, sendWA, openNewShipment, createShipment, filterTable, gotoStatus, exportCSV, importCSV, parseCSVRow, openEmp, editEmp, saveEmployee, delEmp) идентичны вашему предыдущему коду ...
+// ===== ALL OTHER FUNCTIONS (FULL) =====
+window.showQR=id=>{
+  activeQRId=id;
+  document.getElementById('qrCanvas').innerHTML='';
+  new QRCode(document.getElementById('qrCanvas'),{text:id,width:200,height:200,colorDark:'#000',colorLight:'#fff'});
+  document.getElementById('qrIdLabel').textContent=id;
+  openModal('modalQR');
+};
+window.printQR=()=>{if(activeQRId)printLabel(activeQRId);closeModal('modalQR');};
+window.printLabel=id=>{
+  const s=shipments.find(s=>s.id===id);if(!s)return;
+  const tmp=document.createElement('div');tmp.style.cssText='position:absolute;left:-9999px';document.body.appendChild(tmp);
+  new QRCode(tmp,{text:id,width:120,height:120,colorDark:'#000',colorLight:'#fff'});
+  setTimeout(()=>{
+    const canvas=tmp.querySelector('canvas');const qrImg=canvas?canvas.toDataURL():'';
+    document.body.removeChild(tmp);
+    const mk=lbl=>`<div class="pd"><div class="clabel">${esc(lbl)}</div><div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #000;padding-bottom:6px;margin-bottom:8px;font-size:11px"><div><h1 style="font-size:14px;margin:0">📦 GoldExpress</h1></div><div>${esc(now())}</div></div><div class="qr-c">${qrImg?`<img src="${qrImg}" width="120" height="120">`:'QR'}</div><div class="onum">${esc(s.id)}</div><div style="text-align:center;background:#f0a500;color:#000;font-weight:800;padding:5px;border-radius:4px;font-size:11px;margin-bottom:8px">${esc(LABEL[s.status]||s.status)}</div><table style="width:100%;border-collapse:collapse;font-size:10px;margin-bottom:8px"><tr><th style="background:#f5f5f5;padding:4px;border:1px solid #999">Çəki:</th><td style="padding:4px;border:1px solid #999">${esc(s.weight||0)} kg</td></tr><tr><th style="background:#f5f5f5;padding:4px;border:1px solid #999">Məbləğ:</th><td style="padding:4px;border:1px solid #999">${esc(s.shipPrice||0)} ₼</td></tr><tr><th style="background:#f5f5f5;padding:4px;border:1px solid #999">Daşınma:</th><td style="padding:4px;border:1px solid #999">${s.shipType==='international'?'Beynəlxalq':'Daxili'}</td></tr></table><div style="margin:6px 0;font-size:10px;border-top:1px dashed #999;padding-top:6px"><strong>Göndərən:</strong><p style="margin:0;line-height:1.4">${esc((s.senderName||'')+' '+(s.senderSurname||''))}<br>${esc(s.senderPhone||'')}</p></div><div style="margin:6px 0;font-size:10px;border-top:1px dashed #999;padding-top:6px"><strong>Alan:</strong><p style="margin:0;line-height:1.4">${esc((s.receiverName||'')+' '+(s.receiverSurname||''))}<br>${esc(s.receiverPhone||'')}<br>${esc(s.receiverAddress||'')}</p></div>${s.trackingCode?`<div style="margin:6px 0;font-size:10px;border-top:1px dashed #999;padding-top:6px"><strong>İzləmə kodu:</strong> ${esc(s.trackingCode)}</div>`:''}<div style="text-align:center;font-size:9px;color:#666;margin-top:6px;border-top:1px solid #999;padding-top:4px">GoldExpress Logistics | ${esc(location.origin+location.pathname)}?track=${esc(s.id)}</div></div>`;
+    const pa=document.getElementById('printArea');pa.innerHTML=mk('MÜŞTƏRİ NÜSXƏSİ')+mk('BAĞLAMA ETİKETİ');pa.style.display='block';
+    setTimeout(()=>{window.print();pa.style.display='none';},300);
+  },200);
+};
+
+window.editShip=id=>{
+  const s=shipments.find(s=>s.id===id);if(!s)return;
+  if(!can('edit')){toast('Redaktə hüququnuz yoxdur',true);return;}
+  const seq=s.shipType==='domestic'?DOMESTIC:INTERNATIONAL;
+  document.getElementById('editContent').innerHTML=`<div class="modal-title"><i class="fas fa-pen"></i> Bağlama Redaktəsi — ${esc(s.id)}</div><div class="section-label">Əsas məlumatlar</div><div class="form-grid"><div class="form-group"><label>Çəki (kg)</label><input class="form-input" id="eWeight" value="${esc(s.weight||0)}" type="number" step="0.1"></div><div class="form-group"><label>Məbləğ (AZN)</label><input class="form-input" id="ePrice" value="${esc(s.shipPrice||0)}" type="number" step="0.01"></div><div class="form-group"><label>Daşınma növü</label><select class="form-input" id="eShipType"><option value="domestic" ${s.shipType==='domestic'?'selected':''}>🇦🇿 Daxili</option><option value="international" ${s.shipType==='international'?'selected':''}>🌍 Beynəlxalq</option></select></div><div class="form-group"><label>Status</label><select class="form-input" id="eStatus"><option value="">— dəyişmə —</option>${seq.map(st=>`<option value="${esc(st)}" ${st===s.status?'selected':''}>${esc(LABEL[st])}</option>`).join('')}</select></div></div><div class="form-group"><label>Təsvir</label><input class="form-input" id="eDesc" value="${esc(s.description||'')}"></div><div class="form-group"><label>İzləmə kodu</label><input class="form-input" id="eTrack" value="${esc(s.trackingCode||'')}"></div><div class="section-label">Göndərən</div><div class="form-grid"><div class="form-group"><label>Ad</label><input class="form-input" id="eSName" value="${esc(s.senderName||'')}"></div><div class="form-group"><label>Soyad</label><input class="form-input" id="eSSurname" value="${esc(s.senderSurname||'')}"></div><div class="form-group"><label>Telefon</label><input class="form-input" id="eSPhone" value="${esc(s.senderPhone||'')}"></div><div class="form-group"><label>Ünvan</label><input class="form-input" id="eSAddr" value="${esc(s.senderAddress||'')}"></div></div><div class="section-label">Alan</div><div class="form-grid"><div class="form-group"><label>Ad</label><input class="form-input" id="eRName" value="${esc(s.receiverName||'')}"></div><div class="form-group"><label>Soyad</label><input class="form-input" id="eRSurname" value="${esc(s.receiverSurname||'')}"></div><div class="form-group"><label>Telefon</label><input class="form-input" id="eRPhone" value="${esc(s.receiverPhone||'')}"></div><div class="form-group"><label>Ünvan</label><input class="form-input" id="eRAddr" value="${esc(s.receiverAddress||'')}"></div></div><div class="form-group"><label>Müştəri qeydi</label><textarea class="form-input" id="eCNote" rows="2">${esc(s.customerNote||'')}</textarea></div><button class="save-btn" onclick="saveEdit('${escA(s.id)}')"><i class="fas fa-save"></i> Dəyişiklikləri Saxla</button>`;
+  openModal('modalEdit');
+};
+window.saveEdit=async id=>{
+  const g=eid=>document.getElementById(eid)?.value??'';
+  const updates={
+    weight:parseFloat(g('eWeight'))||0,shipPrice:parseFloat(g('ePrice'))||0,
+    shipType:g('eShipType'),description:g('eDesc').trim(),trackingCode:g('eTrack').trim(),
+    senderName:g('eSName').trim(),senderSurname:g('eSSurname').trim(),senderPhone:g('eSPhone').trim(),senderAddress:g('eSAddr').trim(),
+    receiverName:g('eRName').trim(),receiverSurname:g('eRSurname').trim(),receiverPhone:g('eRPhone').trim(),receiverAddress:g('eRAddr').trim(),
+    customerNote:g('eCNote').trim()
+  };
+  const st=g('eStatus');if(st)updates.status=st;
+  try{await updateDoc(doc(db,'shipments',id),updates);await addDoc(collection(db,'history'),{action:'edit',message:`${id}: redaktə edildi (${currentUser?.name})`,user:currentUser?.name,role:currentRole,time:now()});toast('✅ Saxlanıldı');closeModal('modalEdit');}catch(e){toast('Xəta: '+e.message,true);}
+};
+
+window.delShip=async id=>{
+  if(!can('delete')){toast('Silmək hüququnuz yoxdur',true);return;}
+  if(!confirm(`"${id}" silinsin? Bu əməliyyat geri alına bilməz!`))return;
+  try{await deleteDoc(doc(db,'shipments',id));await addDoc(collection(db,'history'),{action:'delete',message:`${id} silindi (${currentUser?.name})`,user:currentUser?.name||'',role:currentRole,time:now()});toast('Silindi');}catch(e){toast('Xəta: '+e.message,true);}
+};
+
+window.sendWA=(phone,id,status,name)=>{
+  const num=String(phone||'').replace(/[^0-9+]/g,'');
+  if(num.replace(/\D/g,'').length<9){toast('Telefon nömrəsi tapılmadı',true);return;}
+  const msg=`📦 *GoldExpress Kargo*\n\nSalam ${name||'Hörmətli müştəri'},\n\nBağlamanız:\n▸ ID: *${id}*\n▸ Status: *${LABEL[status]||status}*\n\n🔗 İzləmə: ${location.origin+location.pathname}?track=${id}\n\nTəşəkkür edirik! 🚀`;
+  window.open(`https://wa.me/${num.replace('+','')}?text=${encodeURIComponent(msg)}`,'_blank');
+};
+
+window.openNewShipment=()=>{
+  document.getElementById('fNewId').value=genId();
+  ['fNewWeight','fNewPrice','fNewSName','fNewSSurname','fNewSPhone','fNewSAddr','fNewRName','fNewRSurname','fNewRPhone','fNewRAddr','fNewTrack','fNewCNote','fNewDesc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const c=document.getElementById('fNewCat');if(c)c.selectedIndex=0;
+  const p=document.getElementById('fNewPay');if(p)p.selectedIndex=0;
+  const sh=document.getElementById('fNewShip');if(sh)sh.selectedIndex=0;
+  openModal('modalNew');
+  setTimeout(()=>document.getElementById('fNewSName')?.focus(),100);
+};
+window.createShipment=async()=>{
+  const g=id=>document.getElementById(id)?.value??'';
+  const data={id:g('fNewId').trim(),category:g('fNewCat'),payMethod:g('fNewPay'),weight:parseFloat(g('fNewWeight'))||0,shipPrice:parseFloat(g('fNewPrice'))||0,shipType:g('fNewShip'),description:g('fNewDesc').trim(),senderName:g('fNewSName').trim(),senderSurname:g('fNewSSurname').trim(),senderPhone:g('fNewSPhone').trim(),senderAddress:g('fNewSAddr').trim(),receiverName:g('fNewRName').trim(),receiverSurname:g('fNewRSurname').trim(),receiverPhone:g('fNewRPhone').trim(),receiverAddress:g('fNewRAddr').trim(),trackingCode:g('fNewTrack').trim(),customerNote:g('fNewCNote').trim(),status:'created',createdAt:now(),createdBy:currentUser?.id,createdByName:currentUser?.name};
+  if(!data.senderName||!data.receiverName||!data.receiverPhone){toast('Göndərən, alan adı və telefon vacibdir',true);return;}
+  if(shipments.find(s=>s.id===data.id)){toast('Bu ID artıq mövcuddur',true);return;}
+  try{await setDoc(doc(db,'shipments',data.id),data);await addDoc(collection(db,'history'),{action:'created',message:`Yeni bağlama: ${data.id} (${data.shipType==='international'?'🌍':'🇦🇿'}) — ${currentUser?.name}`,user:currentUser?.name||'',role:currentRole,time:now()});closeModal('modalNew');toast('✅ Bağlama yaradıldı');setTimeout(()=>showQR(data.id),400);}catch(e){toast('Xəta: '+e.message,true);}
+};
+
+window.filterTable=()=>{
+  clearTimeout(searchTimer);
+  searchTimer=setTimeout(()=>{
+    const q=(document.getElementById('searchInput')?.value||'').trim().toLowerCase();
+    const st=document.getElementById('statusFilter')?.value||'all';
+    let f=shipments;
+    if(st!=='all')f=f.filter(s=>s.status===st);
+    if(q)f=f.filter(s=>[s.id,s.senderName,s.senderSurname,s.senderPhone,s.receiverName,s.receiverSurname,s.receiverPhone,s.receiverAddress,s.trackingCode].some(v=>String(v||'').toLowerCase().includes(q)));
+    const area=document.getElementById('tableArea');if(area)area.innerHTML=renderTable(f);
+    const cnt=document.getElementById('shipCount');if(cnt)cnt.textContent=`(${f.length}${f.length!==shipments.length?' / '+shipments.length:''})`;
+  },200);
+};
+window.gotoStatus=st=>{changePage('shipments');setTimeout(()=>{const el=document.getElementById('statusFilter');if(el){el.value=st;filterTable();}},150);};
+
+window.exportCSV=()=>{
+  const e=v=>`"${String(v??'').replace(/"/g,'""')}"`;
+  let csv="ID,Göndərən Ad,Soyad,Telefon,Alan Ad,Soyad,Telefon,Ünvan,Çəki,Məbləğ,Status,Tarix,Tracking,Daşınma\n";
+  shipments.forEach(s=>{csv+=[s.id,s.senderName,s.senderSurname,s.senderPhone,s.receiverName,s.receiverSurname,s.receiverPhone,s.receiverAddress,s.weight||0,s.shipPrice||0,LABEL[s.status]||s.status,s.createdAt,s.trackingCode,s.shipType||'domestic'].map(e).join(',')+'\n';});
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  const link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download='goldexpress_'+new Date().toISOString().slice(0,10)+'.csv';link.click();
+  setTimeout(()=>URL.revokeObjectURL(link.href),1000);toast('CSV yükləndi');
+};
+window.importCSV=()=>{
+  const file=document.getElementById('csvFile').files[0];if(!file){toast('Fayl seçin',true);return;}
+  const reader=new FileReader();
+  reader.onload=async e=>{
+    const lines=e.target.result.replace(/^\uFEFF/,'').split(/\r?\n/);
+    let imported=0,skipped=0;
+    for(let i=1;i<lines.length;i++){
+      if(!lines[i].trim())continue;
+      const v=parseCSVRow(lines[i]);if(v.length<5){skipped++;continue;}
+      const id=(v[0]||'').trim()||genId();
+      if(shipments.find(s=>s.id===id)){skipped++;continue;}
+      try{await setDoc(doc(db,'shipments',id),{id,senderName:(v[1]||'').trim(),senderSurname:(v[2]||'').trim(),senderPhone:(v[3]||'').trim(),receiverName:(v[4]||'').trim(),receiverSurname:(v[5]||'').trim(),receiverPhone:(v[6]||'').trim(),receiverAddress:(v[7]||'').trim(),weight:parseFloat(v[8])||0,shipPrice:parseFloat(v[9])||0,status:'created',createdAt:now(),trackingCode:(v[12]||'').trim(),shipType:((v[13]||'').trim()==='international')?'international':'domestic'});imported++;}catch(e){}
+    }
+    toast(`${imported} idxal edildi${skipped?', '+skipped+' atlandı':''}  ✅`);closeModal('modalImport');document.getElementById('csvFile').value='';
+  };
+  reader.readAsText(file,'UTF-8');
+};
+function parseCSVRow(row){
+  const result=[];let cur='',inQ=false;
+  for(let i=0;i<row.length;i++){
+    const c=row[i];
+    if(inQ){if(c==='"'&&row[i+1]==='"'){cur+='"';i++;}else if(c==='"')inQ=false;else cur+=c;}
+    else{if(c==='"')inQ=true;else if(c===','){result.push(cur);cur='';}else cur+=c;}
+  }
+  result.push(cur);return result;
+}
+
+// ===== EMPLOYEES =====
+window.openEmp=()=>{
+  document.getElementById('empModalTitle').innerHTML='<i class="fas fa-user-plus"></i> Yeni İşçi';
+  ['empId','empName','empSurname','empPhone','empEmail','empUser','empPass'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('empRole').value='operator';document.getElementById('empActive').value='1';
+  document.getElementById('permList').innerHTML=PERMS.map(p=>`<label style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(255,255,255,.03);border-radius:10px;font-size:.75rem;cursor:pointer"><input type="checkbox" id="perm_${p}" ${DEF_PERM.operator[p]?'checked':''} style="accent-color:var(--gold)"> ${PERM_LABEL[p]}</label>`).join('');
+  openModal('modalEmployee');
+};
+window.editEmp=id=>{
+  const e=employees.find(e=>e.id===id);if(!e)return;
+  document.getElementById('empModalTitle').innerHTML='<i class="fas fa-edit"></i> İşçi Redaktəsi';
+  document.getElementById('empId').value=e.id;document.getElementById('empName').value=e.name||'';document.getElementById('empSurname').value=e.surname||'';
+  document.getElementById('empPhone').value=e.phone||'';document.getElementById('empEmail').value=e.email||'';
+  document.getElementById('empUser').value=e.username||'';document.getElementById('empPass').value=e.password||'';
+  document.getElementById('empRole').value=e.role||'operator';document.getElementById('empActive').value=String(e.active??1);
+  const perms=e.permissions||DEF_PERM[e.role]||{};
+  document.getElementById('permList').innerHTML=PERMS.map(p=>`<label style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(255,255,255,.03);border-radius:10px;font-size:.75rem;cursor:pointer"><input type="checkbox" id="perm_${p}" ${perms[p]?'checked':''} style="accent-color:var(--gold)"> ${PERM_LABEL[p]}</label>`).join('');
+  openModal('modalEmployee');
+};
+window.saveEmployee=async()=>{
+  const g=id=>document.getElementById(id)?.value??'';
+  const name=g('empName').trim(),username=g('empUser').trim(),password=g('empPass').trim();
+  if(!name||!username||!password){toast('Ad, istifadəçi adı, şifrə vacibdir',true);return;}
+  const id=g('empId')||('emp_'+Date.now().toString(36));
+  const dup=employees.find(e=>e.username===username&&e.id!==id);
+  if(dup){toast('Bu istifadəçi adı artıq mövcuddur',true);return;}
+  const oldEmp=employees.find(e=>e.id===id);const newRole=g('empRole');
+  if(oldEmp?.role==='admin'&&newRole!=='admin'){const ac=employees.filter(e=>e.role==='admin'&&(e.active===1||e.active===undefined)&&e.id!==id).length;if(ac===0){toast('Sistemin son admini rolunu dəyişə bilməzsiniz',true);return;}}
+  const data={name,surname:g('empSurname').trim(),username,password,phone:g('empPhone').trim(),email:g('empEmail').trim(),role:newRole,active:parseInt(g('empActive')),permissions:Object.fromEntries(PERMS.map(p=>[p,document.getElementById('perm_'+p)?.checked?1:0]))};
+  try{await setDoc(doc(db,'employees',id),{...data,id});toast('✅ Saxlanıldı');closeModal('modalEmployee');}catch(e){toast('Xəta: '+e.message,true);}
+};
+window.delEmp=async(id,name)=>{
+  if(id===currentUser?.id){toast('Öz hesabınızı silə bilməzsiniz',true);return;}
+  const target=employees.find(e=>e.id===id);
+  if(target?.role==='admin'){const ac=employees.filter(e=>e.role==='admin'&&(e.active===1||e.active===undefined)).length;if(ac<=1){toast('Sistemin son adminini silmək olmaz',true);return;}}
+  if(!confirm(`"${name}" silinsin?`))return;
+  try{await deleteDoc(doc(db,'employees',id));toast('Silindi');}catch(e){toast('Xəta: '+e.message,true);}
+};
 
 // ===== LOGIN =====
 window.togglePassword=()=>{
