@@ -127,12 +127,12 @@ select option,select optgroup{background:var(--card)!important;color:var(--text)
 
 /* ===== TABLE ===== */
 .table-wrap{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow-x:auto}
-.table-head,.table-row{display:grid;grid-template-columns:110px 150px 80px 140px 130px 110px 100px 110px;padding:12px 18px;gap:8px;align-items:center}
+.table-head,.table-row{display:grid;grid-template-columns:120px 150px 80px 140px 135px 100px 145px 178px;padding:12px 18px;gap:8px;align-items:center}
 .table-head{background:rgba(255,255,255,.03);border-bottom:1px solid var(--border);color:var(--text3);font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
 .table-row{border-bottom:1px solid rgba(255,255,255,.03);font-size:.8rem;transition:background .15s}
 .table-row:hover{background:rgba(255,255,255,.02)}
 .table-row .id{font-family:'IBM Plex Mono',monospace;color:var(--gold);font-weight:700;cursor:pointer;font-size:.78rem}
-.badge{padding:5px 10px;border-radius:20px;font-size:.6rem;font-weight:700;display:inline-block;white-space:nowrap}
+.badge{padding:5px 10px;border-radius:20px;font-size:.6rem;font-weight:700;display:inline-block;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
 .badge.created{background:rgba(80,80,106,.3);color:#a0a0b8}
 .badge.courier_pickup{background:var(--blue-dim);color:var(--blue)}
 .badge.warehouse_az{background:var(--gold-dim);color:var(--gold)}
@@ -143,7 +143,7 @@ select option,select optgroup{background:var(--card)!important;color:var(--text)
 .badge.courier_delivery{background:rgba(59,130,246,.2);color:#60a5fa}
 .badge.delivered{background:var(--green-dim);color:#4ade80}
 .badge.done{background:rgba(34,197,94,.25);color:#4ade80}
-.actions-bar{display:flex;gap:6px;flex-wrap:wrap}
+.actions-bar{display:flex;gap:7px;flex-wrap:wrap;align-items:center;justify-content:flex-start;padding-left:10px}
 .action-btn{width:30px;height:30px;border-radius:9px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.75rem;transition:transform .15s,filter .15s}
 .action-btn:hover{transform:translateY(-2px);filter:brightness(1.2)}
 .act-view{background:var(--blue-dim);color:var(--blue)}
@@ -262,9 +262,37 @@ input::placeholder,textarea::placeholder{color:var(--text3);opacity:.7}
   .page{padding:16px}
   .stats-grid{grid-template-columns:repeat(2,1fr)}
   .form-grid,.form-grid3{grid-template-columns:1fr}
-  .table-head,.table-row{min-width:800px}
+  .table-head,.table-row{min-width:1050px}
   .finance-row{grid-template-columns:1fr}
   .detail-grid{grid-template-columns:1fr}
+}
+
+@media(max-width:700px){
+  :root{--sidebar-w:0}
+  .sidebar{position:sticky;top:0;width:100%;height:auto;flex-direction:row;align-items:center;overflow-x:auto;border-right:none;border-bottom:1px solid var(--border);z-index:200}
+  .sb-head,.sb-user{display:none}
+  .sb-nav{display:flex;gap:6px;padding:8px;overflow-x:auto}
+  .nav-item{min-width:46px;height:42px;padding:0;justify-content:center;border-radius:10px}
+  .main-area{margin-left:0}
+  .page{padding:12px}
+  .page-head{align-items:flex-start;margin-bottom:16px}
+  .page-head h2{font-size:1rem}
+  .stats-grid{grid-template-columns:1fr 1fr;gap:10px}
+  .stat-card{padding:14px}
+  .stat-card h3{font-size:1.25rem}
+  .table-wrap{border:0;background:transparent;overflow:visible}
+  .table-head{display:none!important}
+  .table-row{min-width:0!important;grid-template-columns:1fr 1fr!important;gap:10px;padding:14px;margin-bottom:10px;background:var(--card);border:1px solid var(--border);border-radius:14px}
+  .table-row>div:nth-child(1){grid-column:1/-1}
+  .table-row>div:nth-child(7){grid-column:1/2}
+  .table-row>div:nth-child(8){grid-column:1/-1}
+  .actions-bar{padding-left:0;gap:8px}
+  .action-btn{width:38px;height:38px}
+  .badge{max-width:140px}
+  .search-bar{display:block}
+  .search-box{margin-bottom:10px}
+  .form-input{max-width:none!important}
+  .modal{padding:20px;max-height:94vh}
 }
 
 /* ===== SCROLLBAR ===== */
@@ -329,6 +357,7 @@ input::placeholder,textarea::placeholder{color:var(--text3);opacity:.7}
 
 <div id="modalDetail" class="overlay"><div class="modal wide"><button class="modal-close" onclick="closeModal('modalDetail')">&times;</button><div id="detailContent"></div></div></div>
 <div id="modalEdit" class="overlay"><div class="modal wide"><button class="modal-close" onclick="closeModal('modalEdit')">&times;</button><div id="editContent"></div></div></div>
+<div id="modalCustomer" class="overlay"><div class="modal wide"><button class="modal-close" onclick="closeModal('modalCustomer')">&times;</button><div id="customerContent"></div></div></div>
 
 <div id="modalQR" class="overlay">
   <div class="modal narrow">
@@ -404,11 +433,11 @@ const db = getFirestore(fb);
 
 // ===== CONSTANTS =====
 const DOMESTIC     = ['created','courier_pickup','warehouse_az','courier_delivery','delivered','done'];
-const INTERNATIONAL= ['created','courier_pickup','warehouse_az','sent_to_tr','warehouse_tr','international','arrived','courier_delivery','delivered','done'];
+const INTERNATIONAL= ['created','courier_pickup','warehouse_az','sent_to_tr','warehouse_tr','international','delivered','done'];
 
 const LABEL={
   created:'Yaradıldı', courier_pickup:'Kuryer götürdü', warehouse_az:'AZ Anbarında',
-  sent_to_tr:'Türkiyəyə göndərildi', warehouse_tr:'TR Ofisində', international:'Beynəlxalq daşınmada',
+  sent_to_tr:'Bağlamaya göndərildi', warehouse_tr:'TR Ofisində qəbul edildi', international:'Beynəlxalq karqoda',
   arrived:'Təyinat ölkəsinə çatdı', courier_delivery:'Kuryer çatdırır', delivered:'Çatdırıldı', done:'Tamamlandı'
 };
 const BADGE_CLS={
@@ -445,6 +474,10 @@ const esc=v=>v==null?'':String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;'
 const escA=v=>esc(v).replace(/\\/g,'\\\\');
 const now=()=>new Date().toISOString().slice(0,16).replace('T',' ');
 const genId=()=>'GE-'+new Date().getFullYear()+'-'+Math.random().toString(36).slice(2,7).toUpperCase();
+const money=v=>`${(parseFloat(v)||0).toFixed(2)} ₼`;
+const isDone=s=>['delivered','done'].includes(s.status);
+const shipTime=s=>new Date(String(s.createdAt||now()).replace(' ','T'));
+const inRange=(s,from)=>shipTime(s)>=from;
 const toast=(msg,err=false)=>{
   const b=document.getElementById('toastBox');if(!b)return;
   const el=document.createElement('div');el.className='toast '+(err?'error':'success');
@@ -466,14 +499,19 @@ function nextStatus(current,role,shipType){
   if(idx<0||idx>=seq.length-1)return null;
   const nxt=seq[idx+1];
   switch(role){
-    case 'operator': return current==='created'?'courier_pickup':null;
-    case 'warehouse': return current==='courier_pickup'?'warehouse_az':(current==='warehouse_az'&&shipType==='international'?'sent_to_tr':null);
+    case 'operator':
+      return shipType==='international'&&['sent_to_tr','warehouse_tr'].includes(current)?nxt:null;
+    case 'warehouse':
+      if(current==='courier_pickup')return 'warehouse_az';
+      if(current==='warehouse_az'&&shipType==='international')return 'sent_to_tr';
+      if(shipType==='international'&&['sent_to_tr','warehouse_tr'].includes(current))return nxt;
+      return null;
     case 'courier':
       if(current==='created')return 'courier_pickup';
       if(current==='warehouse_az'&&shipType==='domestic')return 'courier_delivery';
-      if(current==='arrived'&&shipType==='international')return 'courier_delivery';
+      if(current==='warehouse_az'&&shipType==='international')return 'sent_to_tr';
       return null;
-    case 'manager': return ['sent_to_tr','warehouse_tr','international','arrived'].includes(current)?nxt:null;
+    case 'manager': return shipType==='international'&&['sent_to_tr','warehouse_tr','international'].includes(current)?nxt:null;
     case 'admin': return nxt;
     default: return null;
   }
@@ -483,6 +521,40 @@ function nextStatus(current,role,shipType){
 function renderTable(list){
   if(!list.length)return'<div class="empty-state"><i class="fas fa-box-open"></i><p>Bağlama tapılmadı</p></div>';
   return`<div class="table-wrap"><div class="table-head"><div>ID</div><div>Göndərən</div><div>Çəki/Məbləğ</div><div>Alan</div><div>Ünvan</div><div>Tarix</div><div>Status</div><div>Əməliyyat</div></div>${list.map(s=>`<div class="table-row"><div class="id" onclick="viewDetail('${escA(s.id)}')">${esc(s.id)}</div><div>${esc(s.senderName||'')} ${esc(s.senderSurname||'')}<br><small style="color:var(--text3)">${esc(s.senderPhone||'')}</small></div><div>${esc(s.weight||0)}kg<br><span style="color:var(--gold)">${esc(s.shipPrice||0)}₼</span></div><div>${esc(s.receiverName||'')} ${esc(s.receiverSurname||'')}<br><small style="color:var(--text3)">${esc(s.receiverPhone||'')}</small></div><div><small style="color:var(--text2)">${esc((s.receiverAddress||'').substring(0,35))}</small></div><div><small style="color:var(--text3)">${esc((s.createdAt||'').slice(0,10))}</small></div><div><span class="badge ${BADGE_CLS[s.status]||'created'}">${esc(LABEL[s.status]||s.status)}</span></div><div class="actions-bar"><button class="action-btn act-view" title="Bax" onclick="viewDetail('${escA(s.id)}')"><i class="fas fa-eye"></i></button><button class="action-btn act-qr" title="QR" onclick="showQR('${escA(s.id)}')"><i class="fas fa-qrcode"></i></button>${can('edit')?`<button class="action-btn act-edit" title="Redaktə" onclick="editShip('${escA(s.id)}')"><i class="fas fa-pen"></i></button>`:''}<button class="action-btn act-wa" title="WhatsApp" onclick="sendWA('${escA(s.receiverPhone||'')}','${escA(s.id)}','${escA(s.status)}','${escA((s.receiverName||'')+' '+(s.receiverSurname||''))}')"><i class="fab fa-whatsapp"></i></button>${can('print')?`<button class="action-btn act-print" title="Çap" onclick="printLabel('${escA(s.id)}')"><i class="fas fa-print"></i></button>`:''}${can('delete')?`<button class="action-btn act-del" title="Sil" onclick="delShip('${escA(s.id)}')"><i class="fas fa-trash"></i></button>`:''}</div></div>`).join('')}</div>`;
+}
+
+function customerStats(){
+  const map={};
+  shipments.forEach(s=>{
+    const phone=(s.senderPhone||s.receiverPhone||'unknown').trim()||'unknown';
+    if(!map[phone])map[phone]={phone,name:((s.senderName||s.receiverName||'')+' '+(s.senderSurname||s.receiverSurname||'')).trim()||'Adsız müştəri',count:0,active:0,done:0,total:0,last:''};
+    map[phone].count++;
+    map[phone].active+=isDone(s)?0:1;
+    map[phone].done+=isDone(s)?1:0;
+    map[phone].total+=parseFloat(s.shipPrice)||0;
+    map[phone].last=[map[phone].last,s.createdAt||''].sort().pop();
+  });
+  return Object.values(map).sort((a,b)=>b.count-a.count||b.active-a.active);
+}
+
+function renderCustomers(){
+  const rows=customerStats();
+  const active=rows.reduce((a,c)=>a+c.active,0);
+  const vip=rows.filter(c=>c.count>=5).length;
+  return `<div class="page"><div class="page-head"><h2><i class="fas fa-users"></i> Müştəri statistikası</h2></div><div class="stats-grid" style="grid-template-columns:repeat(4,1fr)"><div class="stat-card c5"><div class="icon"><i class="fas fa-address-book"></i></div><h3>${rows.length}</h3><p>Müştəri bazası</p></div><div class="stat-card c2"><div class="icon"><i class="fas fa-star"></i></div><h3>${vip}</h3><p>5+ sifariş</p></div><div class="stat-card c3"><div class="icon"><i class="fas fa-list-check"></i></div><h3>${active}</h3><p>Aktiv checklist</p></div><div class="stat-card c4"><div class="icon"><i class="fas fa-coins"></i></div><h3>${money(rows.reduce((a,c)=>a+c.total,0))}</h3><p>Ümumi ödəniş</p></div></div><div class="table-wrap"><div class="table-head" style="grid-template-columns:1.4fr 1fr 90px 90px 120px 130px"><div>Müştəri</div><div>Telefon</div><div>Sifariş</div><div>Aktiv</div><div>Ödəniş</div><div>Son tarix</div></div>${rows.map(c=>`<div class="table-row" onclick="openCustomer('${escA(c.phone)}')" style="grid-template-columns:1.4fr 1fr 90px 90px 120px 130px;cursor:pointer"><div><strong>${esc(c.name)}</strong><br><small style="color:var(--text3)">Aktiv checklist üçün kliklə</small></div><div>${esc(c.phone)}</div><div>${c.count}</div><div><span class="badge ${c.active?'courier_delivery':'done'}">${c.active}</span></div><div style="color:var(--gold)">${money(c.total)}</div><div>${esc((c.last||'').slice(0,10)||'—')}</div></div>`).join('')||'<div class="empty-state"><i class="fas fa-users"></i><p>Müştəri yoxdur</p></div>'}</div></div>`;
+}
+
+function renderAccounting(){
+  const d=new Date(), dayStart=new Date(d.getFullYear(),d.getMonth(),d.getDate()), weekStart=new Date(dayStart), monthStart=new Date(d.getFullYear(),d.getMonth(),1);
+  weekStart.setDate(dayStart.getDate()-6);
+  const sum=arr=>arr.reduce((a,s)=>a+(parseFloat(s.shipPrice)||0),0);
+  const paid=shipments.filter(s=>(parseFloat(s.shipPrice)||0)>0);
+  const today=sum(paid.filter(s=>inRange(s,dayStart))), week=sum(paid.filter(s=>inRange(s,weekStart))), month=sum(paid.filter(s=>inRange(s,monthStart))), total=sum(paid);
+  const byPay={}; paid.forEach(s=>{const k=s.payMethod||'—';byPay[k]=(byPay[k]||0)+(parseFloat(s.shipPrice)||0);});
+  const byType={Daxili:sum(paid.filter(s=>(s.shipType||'domestic')==='domestic')),Beynəlxalq:sum(paid.filter(s=>s.shipType==='international'))};
+  const days=[];for(let i=13;i>=0;i--){const x=new Date(dayStart);x.setDate(x.getDate()-i);const key=x.toISOString().slice(0,10);days.push({key,total:sum(paid.filter(s=>(s.createdAt||'').slice(0,10)===key))});}
+  const max=Math.max(1,...days.map(x=>x.total));
+  return `<div class="page"><div class="page-head"><h2><i class="fas fa-calculator"></i> Hesabat</h2>${can('import')?'<button class="btn btn-blue" onclick="exportCSV()"><i class="fas fa-download"></i> CSV İxrac</button>':''}</div><div class="finance-row"><div class="finance-card"><p>Bu gün</p><h3 style="color:var(--green)">${money(today)}</h3></div><div class="finance-card"><p>Son 7 gün</p><h3 style="color:var(--gold)">${money(week)}</h3></div><div class="finance-card"><p>Bu ay</p><h3 style="color:var(--blue)">${money(month)}</h3></div></div><div class="finance-row"><div class="finance-card"><p>Ümumi kassaya giriş</p><h3>${money(total)}</h3></div><div class="finance-card"><p>Çatdırılmış sifarişlər</p><h3 style="color:var(--green)">${money(sum(paid.filter(isDone)))}</h3></div><div class="finance-card"><p>Aktiv sifarişlər</p><h3 style="color:var(--purple)">${money(sum(paid.filter(s=>!isDone(s))))}</h3></div></div><div class="table-wrap" style="padding:18px;margin-bottom:18px"><div class="section-label" style="margin-top:0">14 günlük pul axını</div><div style="display:flex;align-items:end;gap:8px;height:160px">${days.map(x=>`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px"><div title="${esc(x.key)}: ${money(x.total)}" style="width:100%;height:${Math.max(4,Math.round(x.total/max*120))}px;background:linear-gradient(180deg,var(--gold),#7c3aed);border-radius:8px 8px 3px 3px"></div><small style="color:var(--text3);font-size:.58rem">${x.key.slice(5)}</small></div>`).join('')}</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px"><div class="table-wrap"><div class="table-head" style="grid-template-columns:1fr 120px"><div>Ödəniş üsulu</div><div>Məbləğ</div></div>${Object.entries(byPay).map(([k,v])=>`<div class="table-row" style="grid-template-columns:1fr 120px"><div>${esc(k)}</div><div style="color:var(--gold)">${money(v)}</div></div>`).join('')}</div><div class="table-wrap"><div class="table-head" style="grid-template-columns:1fr 120px"><div>Daşınma növü</div><div>Məbləğ</div></div>${Object.entries(byType).map(([k,v])=>`<div class="table-row" style="grid-template-columns:1fr 120px"><div>${esc(k)}</div><div style="color:var(--gold)">${money(v)}</div></div>`).join('')}</div></div>${renderTable(paid.slice(0,30))}</div>`;
 }
 
 // ===== RENDER PAGES =====
@@ -504,13 +576,11 @@ function renderPage(p){
     main.innerHTML=`<div class="page"><div class="page-head"><h2><i class="fas fa-warehouse"></i> Anbar Paneli <span style="color:var(--text3);font-size:.8rem">(${wh.length})</span></h2><button class="btn btn-ghost" onclick="openScanner()"><i class="fas fa-qrcode"></i> QR Skan</button></div>${renderTable(wh)}</div>`;
   }
   else if(p==='courier'){
-    const cr=shipments.filter(s=>['courier_delivery','created'].includes(s.status));
+    const cr=shipments.filter(s=>['courier_delivery','created'].includes(s.status)||(s.status==='warehouse_az'&&s.shipType==='international'));
     main.innerHTML=`<div class="page"><div class="page-head"><h2><i class="fas fa-motorcycle"></i> Kuryer Paneli <span style="color:var(--text3);font-size:.8rem">(${cr.length})</span></h2><button class="btn btn-ghost" onclick="openScanner()"><i class="fas fa-qrcode"></i> QR Skan</button></div>${renderTable(cr)}</div>`;
   }
   else if(p==='customers'){
-    const cust={};
-    shipments.forEach(s=>{const k=s.senderPhone||'unknown';if(!cust[k])cust[k]={name:(s.senderName||'')+' '+(s.senderSurname||''),phone:s.senderPhone||'—',count:0,total:0};cust[k].count++;cust[k].total+=parseFloat(s.shipPrice)||0;});
-    main.innerHTML=`<div class="page"><div class="page-head"><h2><i class="fas fa-users"></i> Müştərilər</h2></div><div class="table-wrap"><div class="table-head" style="grid-template-columns:1fr 1fr 80px 100px"><div>Müştəri</div><div>Telefon</div><div>Sifariş</div><div>Ödəniş</div></div>${Object.values(cust).map(c=>`<div class="table-row" style="grid-template-columns:1fr 1fr 80px 100px"><div><strong>${esc(c.name)}</strong></div><div>${esc(c.phone)}</div><div>${c.count}</div><div style="color:var(--gold)">${c.total.toFixed(2)} ₼</div></div>`).join('')||'<div class="empty-state"><i class="fas fa-users"></i><p>Müştəri yoxdur</p></div>'}</div></div>`;
+    main.innerHTML=renderCustomers();
   }
   else if(p==='report'){
     const total=shipments.length;const rev=shipments.reduce((a,s)=>a+(parseFloat(s.shipPrice)||0),0);
@@ -520,9 +590,7 @@ function renderPage(p){
     main.innerHTML=`<div class="page"><div class="page-head"><h2><i class="fas fa-chart-bar"></i> Hesabat</h2>${can('import')?'<button class="btn btn-blue" onclick="exportCSV()"><i class="fas fa-download"></i> CSV İxrac</button>':''}</div><div class="stats-grid" style="grid-template-columns:repeat(4,1fr)"><div class="stat-card c5"><div class="icon"><i class="fas fa-layer-group"></i></div><h3>${total}</h3><p>Ümumi</p></div><div class="stat-card c4"><div class="icon"><i class="fas fa-check-circle"></i></div><h3>${delivered}</h3><p>Çatdırıldı</p></div><div class="stat-card c2"><div class="icon"><i class="fas fa-clock"></i></div><h3>${total-delivered}</h3><p>Gözləyir</p></div><div class="stat-card c3"><div class="icon"><i class="fas fa-money-bill"></i></div><h3>${rev.toFixed(0)} ₼</h3><p>Gəlir</p></div></div><div class="table-wrap"><div class="table-head" style="grid-template-columns:1fr 80px 80px"><div>Status</div><div>Say</div><div>Faiz</div></div>${Object.entries(LABEL).map(([k,v])=>`<div class="table-row" style="grid-template-columns:1fr 80px 80px"><div><span class="badge ${k}">${esc(v)}</span></div><div>${cnt[k]||0}</div><div>${total?Math.round((cnt[k]||0)/total*100):0}%</div></div>`).join('')}</div></div>`;
   }
   else if(p==='finance'){
-    const rev=shipments.reduce((a,s)=>a+(parseFloat(s.shipPrice)||0),0);
-    const delRev=shipments.filter(s=>['delivered','done'].includes(s.status)).reduce((a,s)=>a+(parseFloat(s.shipPrice)||0),0);
-    main.innerHTML=`<div class="page"><div class="page-head"><h2><i class="fas fa-money-bill-wave"></i> Maliyyə</h2>${can('import')?'<button class="btn btn-blue" onclick="exportCSV()"><i class="fas fa-download"></i> CSV İxrac</button>':''}</div><div class="finance-row"><div class="finance-card"><p>Ümumi gəlir</p><h3 style="color:var(--green)">${rev.toFixed(2)} ₼</h3></div><div class="finance-card"><p>Çatdırılan</p><h3 style="color:var(--gold)">${delRev.toFixed(2)} ₼</h3></div><div class="finance-card"><p>Gözləyən</p><h3 style="color:var(--blue)">${(rev-delRev).toFixed(2)} ₼</h3></div></div>${renderTable(shipments.slice(0,20))}</div>`;
+    main.innerHTML=renderAccounting();
   }
   else if(p==='employees'){
     main.innerHTML=`<div class="page"><div class="page-head"><h2><i class="fas fa-user-shield"></i> İşçilər</h2>${can('employees')?'<button class="btn btn-green" onclick="openEmp()"><i class="fas fa-user-plus"></i> Yeni</button>':''}</div><div class="employee-grid">${employees.map(e=>`<div class="emp-card"><div class="emp-header"><div class="emp-avatar">${esc((e.name||'?')[0].toUpperCase())}</div><div class="emp-info"><h4>${esc(e.name||'')} ${esc(e.surname||'')}</h4><span class="role-badge role-${e.role||'operator'}">${esc(ROLES[e.role]||'')}</span></div></div><div class="emp-details"><p><i class="fas fa-user"></i>${esc(e.username||'—')}</p><p><i class="fas fa-envelope"></i>${esc(e.email||'—')}</p><p><i class="fas fa-phone"></i>${esc(e.phone||'—')}</p></div>${can('employees')?`<div class="actions"><button class="btn btn-blue btn-sm" onclick="editEmp('${escA(e.id)}')"><i class="fas fa-edit"></i> Redaktə</button><button class="btn btn-red btn-sm" onclick="delEmp('${escA(e.id)}','${escA(e.name||'')}')"><i class="fas fa-trash"></i></button></div>`:''}</div>`).join('')||'<div class="empty-state"><i class="fas fa-user-shield"></i><p>İşçi yoxdur</p></div>'}</div></div>`;
@@ -538,6 +606,23 @@ function renderPage(p){
 }
 
 window.changePage=p=>{currentPage=p;renderPage(p);};
+
+function applyLocalStatus(id,status){
+  const s=shipments.find(x=>x.id===id);
+  if(s)s.status=status;
+  if(currentUser&&['dashboard','shipments','warehouse','courier','report','finance','customers'].includes(currentPage)){
+    renderPage(currentPage);
+  }
+  syncShow();
+}
+
+window.openCustomer=phone=>{
+  const list=shipments.filter(s=>(s.senderPhone||s.receiverPhone||'unknown')===phone).sort((a,b)=>String(b.createdAt||'').localeCompare(String(a.createdAt||'')));
+  const active=list.filter(s=>!isDone(s));
+  const c=customerStats().find(x=>x.phone===phone)||{name:'Müştəri',total:0,count:0,active:0};
+  document.getElementById('customerContent').innerHTML=`<div class="modal-title"><i class="fas fa-user-check"></i> ${esc(c.name)}</div><div class="detail-grid"><div class="detail-card"><label>Telefon</label><span>${esc(phone)}</span></div><div class="detail-card"><label>Sifariş sayı</label><span>${c.count}</span></div><div class="detail-card"><label>Aktiv checklist</label><span>${c.active}</span></div><div class="detail-card gold"><label>Ödəniş</label><span>${money(c.total)}</span></div></div><div class="section-label">Aktiv checklist</div>${active.length?renderTable(active):'<div class="empty-state"><i class="fas fa-check-circle"></i><p>Aktiv bağlama yoxdur</p></div>'}<div class="section-label">Bütün sifarişlər</div>${renderTable(list)}`;
+  openModal('modalCustomer');
+};
 
 // ===== HISTORY =====
 async function loadHistory(){
@@ -580,12 +665,14 @@ async function onQRResult(text){
   const needsManual=currentRole==='courier'&&s.status==='courier_delivery';
 
   if(nxt&&!needsManual){
+    const oldStatus=s.status;
+    applyLocalStatus(text,nxt);
     try{
       await updateDoc(doc(db,'shipments',text),{status:nxt});
-      await addDoc(collection(db,'history'),{action:nxt,message:`${text}: ${LABEL[s.status]} → ${LABEL[nxt]} [QR skan - ${currentUser?.name}]`,user:currentUser?.name||'',role:currentRole,time:now()});
+      await addDoc(collection(db,'history'),{action:nxt,message:`${text}: ${LABEL[oldStatus]} → ${LABEL[nxt]} [QR skan - ${currentUser?.name}]`,user:currentUser?.name||'',role:currentRole,time:now()});
       res.innerHTML=`<div style="background:var(--green-dim);border-radius:12px;padding:16px;text-align:center;color:var(--green);font-weight:700">✅ Status dəyişdirildi: ${esc(LABEL[nxt])}<br><small style="color:var(--text2)">${esc(currentUser?.name||'')} (${esc(ROLES[currentRole]||'')})</small></div>`;
       syncShow();
-    }catch(e){res.innerHTML=`<div style="color:var(--red);padding:10px">Xəta: ${esc(e.message)}</div>`;}
+    }catch(e){applyLocalStatus(text,oldStatus);res.innerHTML=`<div style="color:var(--red);padding:10px">Xəta: ${esc(e.message)}</div>`;}
   }else{
     res.innerHTML=`<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px"><div style="font-family:'IBM Plex Mono',monospace;color:var(--gold);font-weight:700;margin-bottom:8px">📦 ${esc(s.id)}</div><div style="margin-bottom:6px">${esc((s.senderName||'')+' '+(s.senderSurname||''))} → <strong>${esc(s.receiverName||'')}</strong></div><div style="margin-bottom:8px"><span class="badge ${BADGE_CLS[s.status]||'created'}">${esc(LABEL[s.status]||s.status)}</span> <span style="color:var(--text3);font-size:.75rem">${s.shipType==='international'?'🌍 Beynəlxalq':'🇦🇿 Daxili'}</span></div>${s.receiverAddress?`<div style="color:var(--text2);font-size:.78rem;margin-bottom:10px"><i class="fas fa-map-marker-alt" style="color:var(--text3)"></i> ${esc(s.receiverAddress)}</div>`:''}${needsManual?`<div style="background:rgba(240,165,0,.1);border:1px solid rgba(240,165,0,.3);border-radius:10px;padding:12px;margin:10px 0;text-align:center"><div style="color:var(--gold);font-weight:700;margin-bottom:10px"><i class="fas fa-map-marker-alt"></i> Çatdırılma təsdiqini edin</div><button class="btn btn-green" style="width:100%;padding:14px;font-size:.95rem" onclick="markDelivered('${escA(s.id)}')"><i class="fas fa-check-circle"></i> Çatdırıldı — Təsdiqlə</button></div>`:'<div style="color:var(--text2);padding:8px 0;font-size:.82rem">📌 Bu mərhələdə sizin rolunuz status dəyişə bilməz</div>'}<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn btn-ghost btn-sm" onclick="viewDetail('${escA(s.id)}');closeScanner()"><i class="fas fa-eye"></i> Detallar</button><button class="btn btn-sm" style="background:#25D366;color:#fff" onclick="sendWA('${escA(s.receiverPhone||'')}','${escA(s.id)}','${escA(s.status)}','${escA((s.receiverName||'')+' '+(s.receiverSurname||''))}')"><i class="fab fa-whatsapp"></i></button><button class="btn btn-ghost btn-sm" onclick="closeScanner()">Bağla</button></div></div>`;
   }
@@ -595,6 +682,8 @@ async function onQRResult(text){
 window.markDelivered=async id=>{
   const s=shipments.find(s=>s.id===id);
   if(!s||s.status!=='courier_delivery'){toast('Yalnız "Kuryer çatdırır" mərhələsindəki bağlamalar üçün',true);return;}
+  const oldStatus=s.status;
+  applyLocalStatus(id,'delivered');
   try{
     await updateDoc(doc(db,'shipments',id),{status:'delivered'});
     await addDoc(collection(db,'history'),{action:'delivered',message:`${id}: Kuryer çatdırır → Çatdırıldı [Kuryer: ${currentUser?.name}]`,user:currentUser?.name||'',role:currentRole,time:now()});
@@ -602,7 +691,7 @@ window.markDelivered=async id=>{
     const res=document.getElementById('scanResult');
     if(res)res.innerHTML=`<div style="background:var(--green-dim);border:1px solid var(--green);border-radius:14px;padding:24px;text-align:center"><div style="font-size:2.5rem;margin-bottom:10px">🎉</div><div style="color:var(--green);font-weight:800;font-size:1.1rem;margin-bottom:6px">Çatdırıldı!</div><div style="color:var(--text2);font-size:.82rem;margin-bottom:16px">Bağlama ${esc(id)} uğurla çatdırıldı</div><div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><button class="btn btn-sm" style="background:#25D366;color:#fff" onclick="sendWA('${escA(s.receiverPhone||'')}','${escA(id)}','delivered','${escA((s.receiverName||'')+' '+(s.receiverSurname||''))}')"><i class="fab fa-whatsapp"></i> WhatsApp</button><button class="btn btn-ghost btn-sm" onclick="closeScanner()">Bağla</button></div></div>`;
     closeModal('modalDetail');
-  }catch(e){toast('Xəta: '+e.message,true);}
+  }catch(e){applyLocalStatus(id,oldStatus);toast('Xəta: '+e.message,true);}
 };
 
 // ===== DETAIL =====
@@ -646,12 +735,16 @@ ${can('print')?`<button class="btn btn-ghost btn-sm" onclick="printLabel('${escA
 
 window.changeStatus=async(id,nxt)=>{
   const s=shipments.find(s=>s.id===id);if(!s)return;
-  try{await updateDoc(doc(db,'shipments',id),{status:nxt});await addDoc(collection(db,'history'),{action:nxt,message:`${id}: ${LABEL[s.status]} → ${LABEL[nxt]} (${currentUser?.name})`,user:currentUser?.name,role:currentRole,time:now()});toast('✅ Status dəyişdi');closeModal('modalDetail');}catch(e){toast('Xəta: '+e.message,true);}
+  const oldStatus=s.status;
+  applyLocalStatus(id,nxt);
+  try{await updateDoc(doc(db,'shipments',id),{status:nxt});await addDoc(collection(db,'history'),{action:nxt,message:`${id}: ${LABEL[oldStatus]} → ${LABEL[nxt]} (${currentUser?.name})`,user:currentUser?.name,role:currentRole,time:now()});toast('✅ Status dəyişdi');closeModal('modalDetail');}catch(e){applyLocalStatus(id,oldStatus);toast('Xəta: '+e.message,true);}
 };
 window.rollbackStatus=async(id,prev)=>{
   if(currentRole!=='admin'){toast('Yalnız admin geri ala bilər',true);return;}
   const s=shipments.find(s=>s.id===id);if(!s)return;
-  try{await updateDoc(doc(db,'shipments',id),{status:prev});await addDoc(collection(db,'history'),{action:prev,message:`${id}: GERİ ALMA → ${LABEL[prev]} (${currentUser?.name})`,user:currentUser?.name,role:currentRole,time:now()});toast('🔄 Geri alındı');closeModal('modalDetail');}catch(e){toast('Xəta: '+e.message,true);}
+  const oldStatus=s.status;
+  applyLocalStatus(id,prev);
+  try{await updateDoc(doc(db,'shipments',id),{status:prev});await addDoc(collection(db,'history'),{action:prev,message:`${id}: GERİ ALMA → ${LABEL[prev]} (${currentUser?.name})`,user:currentUser?.name,role:currentRole,time:now()});toast('🔄 Geri alındı');closeModal('modalDetail');}catch(e){applyLocalStatus(id,oldStatus);toast('Xəta: '+e.message,true);}
 };
 
 // ===== ALL OTHER FUNCTIONS (FULL) =====
@@ -849,11 +942,11 @@ window.doLogout=()=>{
 };
 function buildSidebar(){
   const navs={
-    admin:[['dashboard','fa-home','Panel'],['shipments','fa-box','Sifarişlər'],['warehouse','fa-warehouse','Anbar'],['courier','fa-motorcycle','Kuryer'],['employees','fa-user-shield','İşçilər'],['history','fa-history','Tarixçə'],['profile','fa-user-circle','Profil']],
-    operator:[['dashboard','fa-home','Panel'],['shipments','fa-box','Sifarişlər'],['history','fa-history','Tarixçə'],['profile','fa-user-circle','Profil']],
+    admin:[['dashboard','fa-home','Panel'],['shipments','fa-box','Sifarişlər'],['customers','fa-users','Müştəri statistikası'],['finance','fa-calculator','Hesabat'],['warehouse','fa-warehouse','Anbar'],['courier','fa-motorcycle','Kuryer'],['employees','fa-user-shield','İşçilər'],['history','fa-history','Tarixçə'],['profile','fa-user-circle','Profil']],
+    operator:[['dashboard','fa-home','Panel'],['shipments','fa-box','Sifarişlər'],['customers','fa-users','Müştərilər'],['history','fa-history','Tarixçə'],['profile','fa-user-circle','Profil']],
     warehouse:[['dashboard','fa-home','Panel'],['warehouse','fa-warehouse','Anbar'],['shipments','fa-box','Bağlamalar'],['history','fa-history','Tarixçə'],['profile','fa-user-circle','Profil']],
     courier:[['dashboard','fa-home','Panel'],['courier','fa-motorcycle','Çatdırılma'],['shipments','fa-box','Bağlamalar'],['history','fa-history','Tarixçə'],['profile','fa-user-circle','Profil']],
-    manager:[['dashboard','fa-home','Panel'],['shipments','fa-box','Sifarişlər'],['employees','fa-user-shield','İşçilər'],['history','fa-history','Tarixçə'],['profile','fa-user-circle','Profil']]
+    manager:[['dashboard','fa-home','Panel'],['shipments','fa-box','Sifarişlər'],['customers','fa-users','Müştəri statistikası'],['finance','fa-calculator','Hesabat'],['employees','fa-user-shield','İşçilər'],['history','fa-history','Tarixçə'],['profile','fa-user-circle','Profil']]
   };
   const items=navs[currentRole]||navs.operator;
   document.getElementById('sidebarNav').innerHTML=items.map(([p,icon,label])=>`<button class="nav-item" id="nav_${p}" onclick="changePage('${p}')"><i class="fas ${icon}"></i><span>${label}</span></button>`).join('');
