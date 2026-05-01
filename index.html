@@ -897,12 +897,9 @@ if(trackId){
   setTimeout(()=>{const ls=document.getElementById('loadingScreen');if(ls){ls.style.opacity='0';setTimeout(()=>ls.remove(),400);}},600);
 }
 
-document.addEventListener('click',e=>{
-  if(e.target.classList.contains('overlay')&&e.target.classList.contains('open')){
-    if(e.target.id==='modalScan')window.closeScanner();
-    else e.target.classList.remove('open');
-  }
-});
+// ===== MODAL: закрытие ТОЛЬКО по кнопке X или Escape =====
+// Закрытие по клику на тёмную область ОТКЛЮЧЕНО полностью
+// чтобы предотвратить случайное закрытие при заполнении формы
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
     const open=document.querySelector('.overlay.open');
