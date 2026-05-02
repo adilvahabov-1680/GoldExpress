@@ -1,8 +1,8 @@
 {
   "name": "GoldExpress Mobile",
   "short_name": "GoldExpress",
-  "description": "GoldExpress kuryer və anbar mobil idarəetmə sistemi",
-  "start_url": "/goldexpress-mobile.html",
+  "description": "GoldExpress kuryer və anbar mobil sistemi",
+  "start_url": "/GoldExpress/Mobile.html",
   "display": "standalone",
   "background_color": "#0a0a14",
   "theme_color": "#0a0a14",
@@ -23,15 +23,6 @@
       "src": "https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/1f4e6.png",
       "sizes": "512x512",
       "type": "image/png"
-    }
-  ],
-  "categories": ["productivity", "logistics"],
-  "shortcuts": [
-    {
-      "name": "QR Skan",
-      "short_name": "Skan",
-      "description": "Bağlama skan et",
-      "url": "/goldexpress-mobile.html#scanner"
     }
   ]
 }
