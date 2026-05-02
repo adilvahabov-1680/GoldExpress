@@ -1,0 +1,37 @@
+{
+  "name": "GoldExpress Mobile",
+  "short_name": "GoldExpress",
+  "description": "GoldExpress kuryer və anbar mobil idarəetmə sistemi",
+  "start_url": "/goldexpress-mobile.html",
+  "display": "standalone",
+  "background_color": "#0a0a14",
+  "theme_color": "#0a0a14",
+  "orientation": "portrait",
+  "lang": "az",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/1f4e6.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/1f4e6.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/1f4e6.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["productivity", "logistics"],
+  "shortcuts": [
+    {
+      "name": "QR Skan",
+      "short_name": "Skan",
+      "description": "Bağlama skan et",
+      "url": "/goldexpress-mobile.html#scanner"
+    }
+  ]
+}

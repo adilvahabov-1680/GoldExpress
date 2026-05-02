@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0a14">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GoldExpress">
+<title>GoldExpress Mobile</title>
+<link rel="manifest" href="manifest.json">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<style>
+:root {
+  --bg:#0a0a14;--surface:#12121f;--card:#18182b;--border:rgba(255,255,255,0.07);
+  --gold:#f0a500;--gold-dim:rgba(240,165,0,0.13);
+  --green:#22c55e;--green-dim:rgba(34,197,94,0.13);
+  --red:#e63946;--red-dim:rgba(230,57,70,0.13);
+  --blue:#3b82f6;--blue-dim:rgba(59,130,246,0.13);
+  --purple:#a78bfa;--purple-dim:rgba(167,139,250,0.13);
+  --text:#eaeaef;--text2:#a0a0b8;--text3:#6a6a88;
+  --radius:16px;--bottom-bar:68px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+button{cursor:pointer;font-family:inherit;border:none;background:none}
+input,select{font-family:inherit}
+
+/* ===== LOADING ===== */
+#loadScreen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:16px}
+#loadScreen .logo{font-size:3.5rem}
+#loadScreen h1{font-size:1.4rem;font-weight:800;background:linear-gradient(135deg,var(--gold),#fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ===== LOGIN ===== */
+#loginScreen{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:24px;background:radial-gradient(ellipse at 50% 30%,rgba(240,165,0,.06),transparent 60%),var(--bg)}
+.login-card{width:100%;max-width:380px;background:var(--surface);border:1px solid var(--border);border-radius:28px;padding:36px 28px;text-align:center}
+.login-card .logo{font-size:3rem;margin-bottom:12px}
+.login-card h1{font-size:1.5rem;font-weight:900;background:linear-gradient(135deg,var(--gold),#fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.login-card .sub{color:var(--text3);font-size:.75rem;margin-bottom:8px}
+.role-badge{display:inline-block;background:var(--gold-dim);color:var(--gold);border:1px solid rgba(240,165,0,.25);border-radius:20px;padding:4px 14px;font-size:.7rem;font-weight:700;margin-bottom:24px}
+.inp-group{position:relative;margin-bottom:14px}
+.inp-group i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:.9rem}
+.inp-group input{width:100%;padding:14px 14px 14px 42px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:14px;color:var(--text);font-size:1rem;outline:none;transition:border-color .2s}
+.inp-group input:focus{border-color:var(--gold)}
+.eye-btn{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--text3);padding:4px}
+.login-btn{width:100%;padding:15px;background:linear-gradient(135deg,var(--gold),#c78500);border-radius:14px;color:#000;font-weight:800;font-size:1rem;margin-top:8px;transition:transform .15s,box-shadow .15s}
+.login-btn:active{transform:scale(.97)}
+.login-hint{margin-top:18px;font-size:.65rem;color:var(--text3);background:rgba(255,255,255,.03);padding:12px;border-radius:12px;line-height:2}
+
+/* ===== APP ===== */
+#app{display:none;position:fixed;inset:0;flex-direction:column}
+
+/* TOP BAR */
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 12px;background:rgba(10,10,20,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);flex-shrink:0;padding-top:max(14px, env(safe-area-inset-top))}
+.top-bar .brand{display:flex;align-items:center;gap:10px}
+.top-bar .brand .ico{font-size:1.4rem}
+.top-bar .brand h2{font-size:1rem;font-weight:800;color:var(--gold)}
+.top-bar .brand span{font-size:.65rem;color:var(--text3);display:block;margin-top:-2px}
+.top-bar .user-area{display:flex;align-items:center;gap:10px}
+.avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--red));display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:.9rem;flex-shrink:0}
+.sync-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:.6rem;font-weight:700;background:var(--green-dim);color:var(--green);opacity:0;transition:opacity .3s}
+.sync-pill.show{opacity:1}
+
+/* CONTENT */
+.content{flex:1;overflow-y:auto;overflow-x:hidden;padding:16px 16px calc(var(--bottom-bar) + 16px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:rgba(15,15,27,.97);backdrop-filter:blur(20px);border-top:1px solid var(--border);padding-bottom:env(safe-area-inset-bottom)}
+.nav-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px;gap:4px;color:var(--text3);font-size:.6rem;font-weight:600;transition:color .15s;min-height:60px}
+.nav-tab i{font-size:1.2rem}
+.nav-tab.active{color:var(--gold)}
+.nav-tab.active i{filter:drop-shadow(0 0 6px rgba(240,165,0,.4))}
+
+/* ===== PAGES ===== */
+.page{display:none}
+.page.active{display:block}
+
+/* ===== DASHBOARD ===== */
+.welcome-box{background:linear-gradient(135deg,rgba(240,165,0,.1),rgba(240,165,0,.04));border:1px solid rgba(240,165,0,.2);border-radius:20px;padding:20px;margin-bottom:16px;display:flex;align-items:center;gap:14px}
+.welcome-box .w-ico{font-size:2rem}
+.welcome-box .w-info h3{font-size:1rem;font-weight:700;color:#fff}
+.welcome-box .w-info p{font-size:.75rem;color:var(--text3);margin-top:2px}
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;position:relative;overflow:hidden}
+.stat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:4px 4px 0 0}
+.stat-card.c-gold::after{background:var(--gold)}
+.stat-card.c-blue::after{background:var(--blue)}
+.stat-card.c-green::after{background:var(--green)}
+.stat-card.c-purple::after{background:var(--purple)}
+.stat-card .s-ico{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;font-size:1rem}
+.stat-card.c-gold .s-ico{background:var(--gold-dim);color:var(--gold)}
+.stat-card.c-blue .s-ico{background:var(--blue-dim);color:var(--blue)}
+.stat-card.c-green .s-ico{background:var(--green-dim);color:var(--green)}
+.stat-card.c-purple .s-ico{background:var(--purple-dim);color:var(--purple)}
+.stat-card h3{font-size:1.6rem;font-weight:800;color:#fff}
+.stat-card p{font-size:.68rem;color:var(--text3);margin-top:2px}
+.section-title{font-size:.7rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.section-title a{color:var(--gold);font-size:.65rem;font-weight:600;cursor:pointer}
+
+/* ===== SHIPMENT CARDS ===== */
+.ship-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px;transition:transform .15s,border-color .2s;cursor:pointer;active:scale(.98)}
+.ship-card:active{transform:scale(.98);border-color:rgba(240,165,0,.2)}
+.ship-card .sc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.ship-card .sc-id{font-family:'SF Mono','Fira Code',monospace;color:var(--gold);font-weight:700;font-size:.82rem}
+.badge{padding:4px 10px;border-radius:20px;font-size:.6rem;font-weight:700;display:inline-block;white-space:nowrap}
+.badge.created{background:rgba(80,80,106,.3);color:#a0a0b8}
+.badge.courier_pickup{background:var(--blue-dim);color:var(--blue)}
+.badge.warehouse_az{background:var(--gold-dim);color:var(--gold)}
+.badge.sent_to_tr{background:var(--blue-dim);color:var(--blue)}
+.badge.warehouse_tr{background:var(--purple-dim);color:var(--purple)}
+.badge.international{background:rgba(6,182,212,.15);color:#06b6d4}
+.badge.courier_delivery{background:rgba(59,130,246,.2);color:#60a5fa}
+.badge.delivered{background:var(--green-dim);color:#4ade80}
+.badge.done{background:rgba(34,197,94,.25);color:#4ade80}
+.ship-card .sc-body{display:flex;gap:12px}
+.ship-card .sc-avatar{width:42px;height:42px;border-radius:12px;background:rgba(240,165,0,.08);border:1px solid rgba(240,165,0,.15);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.ship-card .sc-info{flex:1;min-width:0}
+.ship-card .sc-name{font-weight:700;color:#fff;font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ship-card .sc-phone{font-size:.72rem;color:var(--text3);margin-top:2px}
+.ship-card .sc-addr{font-size:.72rem;color:var(--text2);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ship-card .sc-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.action-btn{padding:8px 14px;border-radius:10px;font-size:.72rem;font-weight:700;display:inline-flex;align-items:center;gap:6px;transition:transform .1s}
+.action-btn:active{transform:scale(.95)}
+.btn-scan{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(240,165,0,.25)}
+.btn-status{background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.25)}
+.btn-wa{background:rgba(37,211,102,.12);color:#25D366;border:1px solid rgba(37,211,102,.2)}
+.btn-detail{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(59,130,246,.2)}
+
+/* ===== SEARCH ===== */
+.search-bar{position:relative;margin-bottom:14px}
+.search-bar i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text3)}
+.search-bar input{width:100%;padding:12px 14px 12px 42px;background:var(--card);border:1px solid var(--border);border-radius:14px;color:var(--text);font-size:.9rem;outline:none}
+.search-bar input:focus{border-color:var(--gold)}
+
+/* ===== SCANNER PAGE ===== */
+.scan-container{max-width:100%;border-radius:20px;overflow:hidden;margin-bottom:16px;background:var(--card);border:1px solid var(--border)}
+#reader{width:100%}
+#reader video{border-radius:0}
+.scan-result{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;display:none}
+.scan-result.show{display:block}
+.scan-result .sr-id{font-family:'SF Mono','Fira Code',monospace;color:var(--gold);font-size:1rem;font-weight:700;margin-bottom:10px}
+
+/* ===== DETAIL MODAL ===== */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(12px);z-index:500;align-items:flex-end;justify-content:center;padding:0}
+.modal-overlay.open{display:flex}
+.modal-sheet{background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-height:90vh;overflow-y:auto;padding:20px 18px calc(20px + env(safe-area-inset-bottom));animation:sheetUp .25s cubic-bezier(.4,0,.2,1)}
+@keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sheet-handle{width:40px;height:4px;background:var(--border);border-radius:4px;margin:0 auto 18px}
+.sheet-title{font-size:1rem;font-weight:800;color:#fff;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+.sheet-close{width:30px;height:30px;background:rgba(255,255,255,.06);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--text3)}
+.detail-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border)}
+.detail-row:last-child{border-bottom:none}
+.detail-row .lbl{color:var(--text3);font-size:.75rem}
+.detail-row .val{color:#fff;font-weight:600;font-size:.82rem;text-align:right;max-width:60%}
+.status-btns{display:flex;gap:10px;flex-direction:column;margin-top:16px}
+.status-action{padding:14px;border-radius:14px;font-size:.88rem;font-weight:700;text-align:center;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .15s}
+.status-action:active{transform:scale(.97)}
+.status-action.next{background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.25)}
+.status-action.wa{background:rgba(37,211,102,.12);color:#25D366;border:1px solid rgba(37,211,102,.2)}
+
+/* ===== PROFILE ===== */
+.profile-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center;margin-bottom:16px}
+.profile-card .p-avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--red));display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:1.8rem;margin:0 auto 12px}
+.profile-card h2{font-size:1.1rem;font-weight:800;color:#fff}
+.profile-card .p-role{font-size:.72rem;color:var(--text3);margin-top:4px}
+.menu-item{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:border-color .2s}
+.menu-item:active{border-color:var(--gold)}
+.menu-item .m-ico{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.menu-item .m-text h4{font-size:.88rem;font-weight:700;color:#fff}
+.menu-item .m-text p{font-size:.7rem;color:var(--text3);margin-top:2px}
+.menu-item i.arrow{margin-left:auto;color:var(--text3);font-size:.8rem}
+.logout-btn{width:100%;padding:16px;background:var(--red-dim);border:1px solid rgba(230,57,70,.25);border-radius:var(--radius);color:var(--red);font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:16px}
+
+/* ===== TOAST ===== */
+.toast-box{position:fixed;bottom:calc(var(--bottom-bar) + 16px + env(safe-area-inset-bottom));left:16px;right:16px;z-index:9000;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{padding:12px 16px;border-radius:14px;font-size:.82rem;font-weight:600;display:flex;align-items:center;gap:10px;animation:toastIn .25s ease;pointer-events:auto}
+.toast.ok{background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);color:var(--green)}
+.toast.err{background:rgba(230,57,70,.15);border:1px solid rgba(230,57,70,.3);color:var(--red)}
+@keyframes toastIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* ===== EMPTY ===== */
+.empty{text-align:center;padding:50px 20px;color:var(--text3)}
+.empty i{font-size:2.5rem;display:block;margin-bottom:12px;opacity:.35}
+.empty p{font-size:.85rem}
+
+/* ===== FILTER CHIPS ===== */
+.filter-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;margin-bottom:14px;scrollbar-width:none}
+.filter-row::-webkit-scrollbar{display:none}
+.chip{padding:6px 14px;border-radius:20px;font-size:.7rem;font-weight:700;white-space:nowrap;background:var(--card);border:1px solid var(--border);color:var(--text2);cursor:pointer;transition:all .15s;flex-shrink:0}
+.chip.active{background:var(--gold-dim);color:var(--gold);border-color:rgba(240,165,0,.3)}
+
+/* ===== QR DISPLAY ===== */
+.qr-box{text-align:center;padding:20px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin-top:12px}
+#qrCanvas{margin:0 auto;display:block}
+</style>
+</head>
+<body>
+
+<!-- Loading -->
+<div id="loadScreen">
+  <div class="logo">📦</div>
+  <h1>GoldExpress</h1>
+  <div class="spinner"></div>
+</div>
+
+<!-- Login -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="logo">📦</div>
+    <h1>GoldExpress</h1>
+    <p class="sub">Mobil Versiya</p>
+    <div class="role-badge">📱 Kuryer · Anbar</div>
+    <div class="inp-group">
+      <i class="fas fa-user"></i>
+      <input type="text" id="lUser" placeholder="İstifadəçi adı" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="inp-group">
+      <i class="fas fa-lock"></i>
+      <input type="password" id="lPass" placeholder="Şifrə" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      <button class="eye-btn" onclick="togglePwd()"><i class="fas fa-eye" id="eyeIco"></i></button>
+    </div>
+    <button class="login-btn" onclick="doLogin()"><i class="fas fa-sign-in-alt"></i> Daxil ol</button>
+    <div class="login-hint">
+      🛵 kuryer / kuryer123<br>
+      🏭 warehouse / anbar123<br>
+      🔑 admin / admin123
+    </div>
+  </div>
+</div>
+
+<!-- App -->
+<div id="app">
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="brand">
+      <span class="ico">📦</span>
+      <div>
+        <h2>GoldExpress</h2>
+        <span id="topRole">Mobil</span>
+      </div>
+    </div>
+    <div class="user-area">
+      <span class="sync-pill" id="syncPill"><i class="fas fa-check-circle"></i> Sinx</span>
+      <div class="avatar" id="topAvatar">?</div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content" id="content">
+
+    <!-- DASHBOARD PAGE -->
+    <div class="page" id="pg-dashboard">
+      <div class="welcome-box">
+        <span class="w-ico" id="roleIco">👋</span>
+        <div class="w-info">
+          <h3 id="welcomeMsg">Xoş gəldiniz!</h3>
+          <p id="welcomeSub">GoldExpress Mobil Sistemi</p>
+        </div>
+      </div>
+      <div class="stat-row" id="dashStats"></div>
+      <div class="section-title">Son sifarişlər <a onclick="navTo('shipments')">Hamısı →</a></div>
+      <div id="recentShips"></div>
+    </div>
+
+    <!-- SHIPMENTS PAGE -->
+    <div class="page" id="pg-shipments">
+      <div class="search-bar">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInp" placeholder="ID, ad, telefon axtar..." oninput="filterShips()">
+      </div>
+      <div class="filter-row" id="filterRow"></div>
+      <div id="shipList"></div>
+    </div>
+
+    <!-- SCANNER PAGE -->
+    <div class="page" id="pg-scanner">
+      <div class="section-title" style="margin-bottom:12px">QR Skan</div>
+      <div class="scan-container">
+        <div id="reader"></div>
+      </div>
+      <div id="scanResult" class="scan-result"></div>
+    </div>
+
+    <!-- PROFILE PAGE -->
+    <div class="page" id="pg-profile">
+      <div class="profile-card">
+        <div class="p-avatar" id="profAvatar">?</div>
+        <h2 id="profName">—</h2>
+        <div class="p-role" id="profRole">—</div>
+      </div>
+      <div class="menu-item" onclick="navTo('shipments')">
+        <div class="m-ico" style="background:var(--blue-dim);color:var(--blue)"><i class="fas fa-box"></i></div>
+        <div class="m-text"><h4>Sifarişlərim</h4><p>Aktiv bağlamalar</p></div>
+        <i class="fas fa-chevron-right arrow"></i>
+      </div>
+      <div class="menu-item" onclick="navTo('scanner')">
+        <div class="m-ico" style="background:var(--gold-dim);color:var(--gold)"><i class="fas fa-qrcode"></i></div>
+        <div class="m-text"><h4>QR Skan</h4><p>Bağlama skan et</p></div>
+        <i class="fas fa-chevron-right arrow"></i>
+      </div>
+      <button class="logout-btn" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> Sistemdən çıx</button>
+    </div>
+
+  </div><!-- /content -->
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <button class="nav-tab active" id="tab-dashboard" onclick="navTo('dashboard')">
+      <i class="fas fa-home"></i>Panel
+    </button>
+    <button class="nav-tab" id="tab-shipments" onclick="navTo('shipments')">
+      <i class="fas fa-box"></i>Sifarişlər
+    </button>
+    <button class="nav-tab" id="tab-scanner" onclick="navTo('scanner')">
+      <i class="fas fa-qrcode"></i>QR Skan
+    </button>
+    <button class="nav-tab" id="tab-profile" onclick="navTo('profile')">
+      <i class="fas fa-user"></i>Profil
+    </button>
+  </div>
+
+</div><!-- /app -->
+
+<!-- Detail Modal (Bottom Sheet) -->
+<div class="modal-overlay" id="detailModal" onclick="closeDetail(event)">
+  <div class="modal-sheet" id="detailSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">
+      <span id="detailTitle">Bağlama</span>
+      <button class="sheet-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div id="detailBody"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-box" id="toastBox"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, doc, updateDoc, onSnapshot, query, orderBy, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// ===== FIREBASE (eyni konfiqurasiya) =====
+const fb = initializeApp({
+  apiKey:"AIzaSyC3_5fQsbFVOW8aUL0erveEAJ3GrJNE0cQ",
+  authDomain:"goldexpress-814f7.firebaseapp.com",
+  projectId:"goldexpress-814f7",
+  storageBucket:"goldexpress-814f7.firebasestorage.app",
+  messagingSenderId:"435122002610",
+  appId:"1:435122002610:web:3d6e6af72f14d55b2a87ab"
+});
+const db = getFirestore(fb);
+
+// ===== CONSTANTS =====
+const DOMESTIC     = ['created','courier_pickup','warehouse_az','courier_delivery','delivered','done'];
+const INTERNATIONAL= ['created','courier_pickup','warehouse_az','sent_to_tr','warehouse_tr','international','delivered','done'];
+
+const LABEL={
+  created:'Yaradıldı', courier_pickup:'Kuryer götürdü', warehouse_az:'AZ Anbarında',
+  sent_to_tr:'Bağlamaya göndərildi', warehouse_tr:'TR Ofisində qəbul edildi',
+  international:'Beynəlxalq karqoda', arrived:'Təyinat ölkəsinə çatdı',
+  courier_delivery:'Kuryer çatdırır', delivered:'Çatdırıldı', done:'Tamamlandı'
+};
+const BADGE_CLS={
+  created:'created', courier_pickup:'courier_pickup', warehouse_az:'warehouse_az',
+  sent_to_tr:'sent_to_tr', warehouse_tr:'warehouse_tr', international:'international',
+  arrived:'arrived', courier_delivery:'courier_delivery', delivered:'delivered', done:'done'
+};
+const ROLES={admin:'Admin',operator:'Operator',warehouse:'Anbar İşçisi',courier:'Kuryer',manager:'Menecer'};
+const DEF_PERM={
+  admin:{create:1,view:1,scan:1,status:1,print:1,delete:1,employees:1,finance:1,track:1,import:1,edit:1},
+  operator:{create:1,view:1,scan:1,status:0,print:1,delete:0,employees:0,finance:0,track:1,import:0,edit:0},
+  warehouse:{create:0,view:1,scan:1,status:1,print:0,delete:0,employees:0,finance:0,track:0,import:0,edit:0},
+  courier:{create:0,view:1,scan:1,status:1,print:0,delete:0,employees:0,finance:0,track:0,import:0,edit:0},
+  manager:{create:0,view:1,scan:0,status:0,print:0,delete:0,employees:1,finance:1,track:1,import:1,edit:0}
+};
+
+// ===== STATE =====
+let shipments=[], currentUser=null, currentRole='', currentPage='dashboard';
+let unsubShip=null, scanner=null, scannerActive=false, activeFilter='all';
+
+// ===== HELPERS =====
+const esc=v=>v==null?'':String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+const isDone=s=>['delivered','done'].includes(s.status);
+const can=p=>{const perms=currentUser?.permissions||DEF_PERM[currentRole]||{};return currentRole==='admin'||perms[p]===1;};
+
+function toast(msg,err=false){
+  const b=document.getElementById('toastBox');
+  const el=document.createElement('div');
+  el.className='toast '+(err?'err':'ok');
+  el.innerHTML=`<i class="fas fa-${err?'exclamation-circle':'check-circle'}"></i>${esc(msg)}`;
+  b.appendChild(el);
+  setTimeout(()=>el.remove(),3500);
+}
+function syncShow(){
+  const p=document.getElementById('syncPill');
+  p.classList.add('show');
+  setTimeout(()=>p.classList.remove('show'),2000);
+}
+
+// ===== NEXT STATUS =====
+function nextStatus(current,role,shipType){
+  const seq=shipType==='domestic'?DOMESTIC:INTERNATIONAL;
+  const idx=seq.indexOf(current);
+  if(idx<0||idx>=seq.length-1)return null;
+  const nxt=seq[idx+1];
+  switch(role){
+    case 'warehouse':
+      if(current==='courier_pickup')return 'warehouse_az';
+      if(current==='warehouse_az'&&shipType==='international')return 'sent_to_tr';
+      if(shipType==='international'&&['sent_to_tr','warehouse_tr'].includes(current))return nxt;
+      return null;
+    case 'courier':
+      if(current==='created')return 'courier_pickup';
+      if(current==='warehouse_az'&&shipType==='domestic')return 'courier_delivery';
+      if(current==='courier_delivery')return 'delivered';
+      if(current==='international')return 'courier_delivery';
+      return null;
+    case 'admin':
+    case 'operator': return nxt;
+    default: return null;
+  }
+}
+
+// ===== FILTER =====
+function getMyShips(){
+  if(currentRole==='courier'){
+    return shipments.filter(s=>[
+      'created','courier_pickup','warehouse_az','courier_delivery','delivered'
+    ].includes(s.status));
+  }
+  if(currentRole==='warehouse'){
+    return shipments.filter(s=>[
+      'courier_pickup','warehouse_az','sent_to_tr','warehouse_tr','international'
+    ].includes(s.status));
+  }
+  return shipments;
+}
+
+// ===== RENDER DASHBOARD =====
+function renderDashboard(){
+  const mine=getMyShips();
+  const active=mine.filter(s=>!isDone(s));
+  const done=mine.filter(isDone);
+  const today=new Date().toISOString().slice(0,10);
+  const todayShips=mine.filter(s=>(s.createdAt||'').slice(0,10)===today);
+
+  let ico='🛵', msg='', sub='';
+  if(currentRole==='warehouse'){ico='🏭'; msg=`Salam, ${currentUser?.name||'İşçi'}!`; sub='Anbar idarəetmə paneli';}
+  else if(currentRole==='courier'){ico='🛵'; msg=`Salam, ${currentUser?.name||'Kuryer'}!`; sub='Kuryer paneli - hazır olun!';}
+  else{ico='👋'; msg=`Salam, ${currentUser?.name||'İstifadəçi'}!`; sub='GoldExpress Mobil Sistemi';}
+
+  document.getElementById('roleIco').textContent=ico;
+  document.getElementById('welcomeMsg').textContent=msg;
+  document.getElementById('welcomeSub').textContent=sub;
+
+  document.getElementById('dashStats').innerHTML=`
+    <div class="stat-card c-gold"><div class="s-ico"><i class="fas fa-box"></i></div><h3>${active.length}</h3><p>Aktiv</p></div>
+    <div class="stat-card c-green"><div class="s-ico"><i class="fas fa-check-circle"></i></div><h3>${done.length}</h3><p>Tamamlandı</p></div>
+    <div class="stat-card c-blue"><div class="s-ico"><i class="fas fa-calendar-day"></i></div><h3>${todayShips.length}</h3><p>Bu gün</p></div>
+    <div class="stat-card c-purple"><div class="s-ico"><i class="fas fa-list"></i></div><h3>${mine.length}</h3><p>Ümumi</p></div>
+  `;
+
+  const recent=active.slice(0,4);
+  document.getElementById('recentShips').innerHTML=recent.length
+    ? recent.map(s=>shipCard(s,false)).join('')
+    : '<div class="empty"><i class="fas fa-check-double"></i><p>Aktiv bağlama yoxdur</p></div>';
+}
+
+// ===== RENDER SHIPMENTS =====
+function buildFilters(){
+  const filters=[
+    {key:'all',label:'Hamısı'},
+    {key:'active',label:'Aktiv'},
+    {key:'created',label:'Yaradıldı'},
+    {key:'courier_pickup',label:'Götürüldü'},
+    {key:'warehouse_az',label:'AZ Anbar'},
+    {key:'courier_delivery',label:'Çatdırılır'},
+    {key:'delivered',label:'Çatdırıldı'},
+  ];
+  if(currentRole==='warehouse'||currentRole==='admin'){
+    filters.push({key:'sent_to_tr',label:'TR-ə göndərildi'},{key:'warehouse_tr',label:'TR Anbar'});
+  }
+  document.getElementById('filterRow').innerHTML=filters.map(f=>
+    `<button class="chip${activeFilter===f.key?' active':''}" onclick="setFilter('${f.key}')">${esc(f.label)}</button>`
+  ).join('');
+}
+
+window.setFilter=function(f){
+  activeFilter=f;
+  buildFilters();
+  renderShipments();
+};
+
+window.filterShips=function(){renderShipments();};
+
+function renderShipments(){
+  let list=getMyShips();
+  if(activeFilter==='active') list=list.filter(s=>!isDone(s));
+  else if(activeFilter!=='all') list=list.filter(s=>s.status===activeFilter);
+  const q=(document.getElementById('searchInp')?.value||'').toLowerCase().trim();
+  if(q) list=list.filter(s=>
+    (s.id||'').toLowerCase().includes(q)||
+    ((s.receiverName||'')+' '+(s.receiverSurname||'')).toLowerCase().includes(q)||
+    (s.receiverPhone||'').includes(q)||
+    (s.senderPhone||'').includes(q)
+  );
+  document.getElementById('shipList').innerHTML=list.length
+    ? list.map(s=>shipCard(s,true)).join('')
+    : '<div class="empty"><i class="fas fa-box-open"></i><p>Bağlama tapılmadı</p></div>';
+}
+
+function shipCard(s,showAll){
+  const nxt=nextStatus(s.status,currentRole,s.shipType||'domestic');
+  const phone=s.receiverPhone||'';
+  return `<div class="ship-card" onclick="openDetail('${esc(s.id)}')">
+    <div class="sc-head">
+      <span class="sc-id">${esc(s.id)}</span>
+      <span class="badge ${BADGE_CLS[s.status]||'created'}">${esc(LABEL[s.status]||s.status)}</span>
+    </div>
+    <div class="sc-body">
+      <div class="sc-avatar">📦</div>
+      <div class="sc-info">
+        <div class="sc-name">${esc((s.receiverName||'')+' '+(s.receiverSurname||''))}</div>
+        <div class="sc-phone">${esc(phone)}</div>
+        ${s.receiverAddress?`<div class="sc-addr">📍 ${esc(s.receiverAddress)}</div>`:''}
+      </div>
+    </div>
+    ${showAll?`<div class="sc-actions" onclick="event.stopPropagation()">
+      ${nxt&&can('status')?`<button class="action-btn btn-status" onclick="quickStatus('${esc(s.id)}','${esc(nxt)}')"><i class="fas fa-arrow-right"></i> ${esc(LABEL[nxt])}</button>`:''}
+      ${phone?`<button class="action-btn btn-wa" onclick="sendWA('${esc(phone)}','${esc(s.id)}','${esc(s.status)}')"><i class="fab fa-whatsapp"></i> WA</button>`:''}
+    </div>`:''}
+  </div>`;
+}
+
+// ===== QUICK STATUS =====
+window.quickStatus=async function(id,newStatus){
+  if(!confirm(`Status: "${LABEL[newStatus]}" olaraq yeniləyilsin?`))return;
+  try{
+    await updateDoc(doc(db,'shipments',id),{status:newStatus});
+    toast(`✅ ${LABEL[newStatus]}`);
+    closeModal();
+  }catch(e){toast('Xəta: '+e.message,true);}
+};
+
+// ===== WHATSAPP =====
+window.sendWA=function(phone,id,status){
+  const p=phone.replace(/\D/g,'');
+  const msg=encodeURIComponent(`GoldExpress\nBağlama: ${id}\nStatus: ${LABEL[status]||status}\nİzləmə: https://goldexpress-814f7.web.app?track=${id}`);
+  window.open(`https://wa.me/${p}?text=${msg}`,'_blank');
+};
+
+// ===== DETAIL =====
+window.openDetail=async function(id){
+  const s=shipments.find(x=>x.id===id);
+  if(!s)return;
+  const nxt=nextStatus(s.status,currentRole,s.shipType||'domestic');
+  document.getElementById('detailTitle').textContent=s.id;
+  document.getElementById('detailBody').innerHTML=`
+    <div style="text-align:center;margin-bottom:14px">
+      <span class="badge ${BADGE_CLS[s.status]||'created'}" style="font-size:.75rem;padding:6px 14px">${esc(LABEL[s.status]||s.status)}</span>
+    </div>
+    <div class="detail-row"><span class="lbl">Alan</span><span class="val">${esc((s.receiverName||'')+' '+(s.receiverSurname||''))}</span></div>
+    <div class="detail-row"><span class="lbl">Telefon</span><span class="val">${esc(s.receiverPhone||'—')}</span></div>
+    <div class="detail-row"><span class="lbl">Ünvan</span><span class="val">${esc(s.receiverAddress||'—')}</span></div>
+    <div class="detail-row"><span class="lbl">Göndərən</span><span class="val">${esc((s.senderName||'')+' '+(s.senderSurname||''))}</span></div>
+    <div class="detail-row"><span class="lbl">Göndərən telefon</span><span class="val">${esc(s.senderPhone||'—')}</span></div>
+    <div class="detail-row"><span class="lbl">Çəki</span><span class="val">${esc(s.weight||0)} kg</span></div>
+    <div class="detail-row"><span class="lbl">Məbləğ</span><span class="val" style="color:var(--gold)">${esc(s.shipPrice||0)} ₼</span></div>
+    <div class="detail-row"><span class="lbl">Daşınma növü</span><span class="val">${s.shipType==='international'?'🌍 Beynəlxalq':'🇦🇿 Daxili'}</span></div>
+    ${s.notes?`<div class="detail-row"><span class="lbl">Qeyd</span><span class="val">${esc(s.notes)}</span></div>`:''}
+    <div class="detail-row"><span class="lbl">Tarix</span><span class="val">${esc((s.createdAt||'').slice(0,16))}</span></div>
+    <div class="status-btns">
+      ${nxt&&can('status')?`<button class="status-action next" onclick="quickStatus('${esc(s.id)}','${esc(nxt)}')"><i class="fas fa-arrow-right"></i> ${esc(LABEL[nxt])}</button>`:''}
+      ${s.receiverPhone?`<button class="status-action wa" onclick="sendWA('${esc(s.receiverPhone)}','${esc(s.id)}','${esc(s.status)}')"><i class="fab fa-whatsapp"></i> WhatsApp ilə bildir</button>`:''}
+    </div>
+  `;
+  document.getElementById('detailModal').classList.add('open');
+};
+
+window.closeDetail=function(e){
+  if(e.target===document.getElementById('detailModal'))closeModal();
+};
+window.closeModal=function(){
+  document.getElementById('detailModal').classList.remove('open');
+};
+
+// ===== SCANNER =====
+function startScanner(){
+  if(scannerActive)return;
+  scannerActive=true;
+  const config={fps:10,qrbox:{width:250,height:250},aspectRatio:1.0};
+  scanner=new Html5Qrcode("reader");
+  scanner.start({facingMode:"environment"},config,async(qrCode)=>{
+    await scanner.stop().catch(()=>{});
+    scannerActive=false;
+    const id=qrCode.trim();
+    const found=shipments.find(s=>s.id===id);
+    if(found){
+      showScanResult(found);
+    }else{
+      const snap=await getDoc(doc(db,'shipments',id)).catch(()=>null);
+      if(snap&&snap.exists()){showScanResult({...snap.data()});}
+      else{document.getElementById('scanResult').innerHTML=`<div style="color:var(--red);text-align:center;padding:20px"><i class="fas fa-times-circle" style="font-size:2rem;display:block;margin-bottom:8px"></i>Bağlama tapılmadı: ${esc(id)}</div>`;document.getElementById('scanResult').classList.add('show');}
+    }
+  },()=>{});
+}
+
+function showScanResult(s){
+  const nxt=nextStatus(s.status,currentRole,s.shipType||'domestic');
+  document.getElementById('scanResult').classList.add('show');
+  document.getElementById('scanResult').innerHTML=`
+    <div class="sr-id">📦 ${esc(s.id)}</div>
+    <div class="detail-row"><span class="lbl">Alan</span><span class="val">${esc((s.receiverName||'')+' '+(s.receiverSurname||''))}</span></div>
+    <div class="detail-row"><span class="lbl">Ünvan</span><span class="val">${esc(s.receiverAddress||'—')}</span></div>
+    <div class="detail-row"><span class="lbl">Status</span><span class="val"><span class="badge ${BADGE_CLS[s.status]||'created'}">${esc(LABEL[s.status]||s.status)}</span></span></div>
+    ${nxt&&can('status')?`<button class="status-action next" style="width:100%;margin-top:12px;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:12px;background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.25);font-weight:700" onclick="quickStatus('${esc(s.id)}','${esc(nxt)}')"><i class="fas fa-arrow-right"></i> ${esc(LABEL[nxt])}</button>`:''}
+    <button onclick="restartScanner()" style="width:100%;margin-top:8px;padding:12px;border-radius:12px;background:var(--card);border:1px solid var(--border);color:var(--text2);font-weight:700;font-size:.85rem"><i class="fas fa-redo"></i> Yenidən skan et</button>
+  `;
+}
+
+window.restartScanner=function(){
+  document.getElementById('scanResult').classList.remove('show');
+  document.getElementById('scanResult').innerHTML='';
+  setTimeout(startScanner,300);
+};
+
+function stopScanner(){
+  if(scanner&&scannerActive){
+    scanner.stop().catch(()=>{});
+    scannerActive=false;
+  }
+}
+
+// ===== NAVIGATION =====
+window.navTo=function(page){
+  if(page===currentPage&&page==='scanner')return;
+  if(currentPage==='scanner'&&page!=='scanner')stopScanner();
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('pg-'+page)?.classList.add('active');
+  document.getElementById('tab-'+page)?.classList.add('active');
+  currentPage=page;
+  if(page==='dashboard')renderDashboard();
+  else if(page==='shipments'){buildFilters();renderShipments();}
+  else if(page==='scanner'){
+    document.getElementById('scanResult').classList.remove('show');
+    document.getElementById('scanResult').innerHTML='';
+    setTimeout(startScanner,400);
+  }
+  document.getElementById('content').scrollTop=0;
+};
+
+// ===== LOGIN / LOGOUT =====
+window.togglePwd=function(){
+  const el=document.getElementById('lPass');
+  const ico=document.getElementById('eyeIco');
+  el.type=el.type==='password'?'text':'password';
+  ico.className=el.type==='password'?'fas fa-eye':'fas fa-eye-slash';
+};
+
+window.doLogin=async function(){
+  const u=document.getElementById('lUser').value.trim();
+  const p=document.getElementById('lPass').value;
+  if(!u||!p){toast('İstifadəçi adı və şifrə daxil edin',true);return;}
+  
+  // Try from cached employees first, then default
+  const DEFAULT_EMPLOYEES=[
+    {id:'admin1',name:'Admin',surname:'User',username:'admin',password:'admin123',role:'admin',active:1},
+    {id:'op1',name:'Leyla',surname:'Məmmədova',username:'operator',password:'oper123',role:'operator',active:1},
+    {id:'wh1',name:'Rəşad',surname:'Əliyev',username:'warehouse',password:'anbar123',role:'warehouse',active:1},
+    {id:'cr1',name:'Tural',surname:'İbrahimov',username:'courier',password:'kuryer123',role:'courier',active:1}
+  ];
+  
+  let empList=DEFAULT_EMPLOYEES;
+  try{
+    const {getDocs,collection}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+    const snap=await getDocs(collection(db,'employees'));
+    if(!snap.empty)empList=snap.docs.map(d=>({...d.data()}));
+  }catch(e){}
+  
+  const user=empList.find(e=>e.username===u&&e.password===p&&e.active!==0);
+  if(!user){toast('İstifadəçi adı və ya şifrə yanlışdır',true);return;}
+  
+  currentUser=user;
+  currentRole=user.role;
+  
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  document.getElementById('topAvatar').textContent=(user.name||'?')[0].toUpperCase();
+  document.getElementById('topRole').textContent=ROLES[user.role]||user.role;
+  document.getElementById('profAvatar').textContent=(user.name||'?')[0].toUpperCase();
+  document.getElementById('profName').textContent=(user.name||'')+' '+(user.surname||'');
+  document.getElementById('profRole').textContent=ROLES[user.role]||user.role;
+  
+  document.getElementById('pg-dashboard').classList.add('active');
+  document.getElementById('tab-dashboard').classList.add('active');
+  
+  // Subscribe to shipments
+  unsubShip=onSnapshot(query(collection(db,'shipments'),orderBy('createdAt','desc')),snap=>{
+    shipments=snap.docs.map(d=>({...d.data()}));
+    if(currentPage==='dashboard')renderDashboard();
+    else if(currentPage==='shipments')renderShipments();
+    syncShow();
+  });
+  
+  renderDashboard();
+  toast(`Xoş gəldiniz, ${user.name}! 👋`);
+};
+
+window.doLogout=function(){
+  if(!confirm('Sistemdən çıxmaq istəyirsiniz?'))return;
+  stopScanner();
+  if(unsubShip){unsubShip();unsubShip=null;}
+  currentUser=null;currentRole='';
+  shipments=[];activeFilter='all';
+  document.getElementById('app').style.display='none';
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('lUser').value='';
+  document.getElementById('lPass').value='';
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+};
+
+// ===== INIT =====
+setTimeout(()=>{
+  document.getElementById('loadScreen').style.opacity='0';
+  document.getElementById('loadScreen').style.transition='opacity .4s';
+  setTimeout(()=>{
+    document.getElementById('loadScreen').remove();
+    document.getElementById('loginScreen').style.display='flex';
+  },400);
+},800);
+
+// Back button closes modal
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape')closeModal();
+});
+</script>
+</body>
+</html>
