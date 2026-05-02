@@ -2,7 +2,7 @@
   "name": "GoldExpress Mobile",
   "short_name": "GoldExpress",
   "description": "GoldExpress kuryer və anbar mobil sistemi",
-  "start_url": "/GoldExpress/Mobile.html",
+  "start_url": "https://adilvahabov-1680.github.io/GoldExpress/Mobile.html",
   "display": "standalone",
   "background_color": "#0a0a14",
   "theme_color": "#0a0a14",
