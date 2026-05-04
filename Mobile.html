@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="GoldExpress">
-<title>GoldExpressMobile</title>
+<title>GoldExpress Mobile</title>
 <link rel="manifest" href="manifest.json">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
@@ -197,6 +197,28 @@ input,select{font-family:inherit}
 /* ===== QR DISPLAY ===== */
 .qr-box{text-align:center;padding:20px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin-top:12px}
 #qrCanvas{margin:0 auto;display:block}
+
+/* ===== HANDLER & TIMELINE ===== */
+.handler-strip{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,rgba(240,165,0,.1),rgba(240,165,0,.03));border:1px solid rgba(240,165,0,.2);border-radius:14px;padding:10px 12px;margin:12px 0}
+.handler-strip .h-ico{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#c78500);display:flex;align-items:center;justify-content:center;color:#000;font-weight:800;flex-shrink:0;font-size:.85rem}
+.handler-strip .h-info{flex:1;min-width:0}
+.handler-strip .h-info .h-lbl{font-size:.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+.handler-strip .h-info .h-name{font-size:.85rem;color:#fff;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.handler-strip .h-info .h-meta{font-size:.65rem;color:var(--text3);margin-top:1px}
+.timeline-section{margin-top:18px}
+.timeline-section .ts-title{font-size:.72rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px}
+.timeline{position:relative;padding-left:22px}
+.timeline::before{content:'';position:absolute;left:7px;top:6px;bottom:6px;width:2px;background:var(--border)}
+.tl-step{position:relative;padding-bottom:14px}
+.tl-step:last-child{padding-bottom:0}
+.tl-step::before{content:'';position:absolute;left:-19px;top:4px;width:12px;height:12px;border-radius:50%;background:var(--card);border:2px solid var(--gold);box-shadow:0 0 0 3px rgba(10,10,20,1)}
+.tl-step.tl-other::before{border-color:var(--text3)}
+.tl-step .tl-status{font-size:.78rem;font-weight:700;color:#fff}
+.tl-step .tl-by{font-size:.7rem;color:var(--gold);margin-top:2px}
+.tl-step .tl-time{font-size:.62rem;color:var(--text3);margin-top:1px}
+.tl-step .tl-via{display:inline-block;font-size:.55rem;background:rgba(255,255,255,.05);color:var(--text3);padding:1px 6px;border-radius:8px;margin-left:6px;text-transform:uppercase;letter-spacing:.4px}
+.tl-empty{font-size:.75rem;color:var(--text3);padding:8px 0;font-style:italic}
+.tl-hidden-note{font-size:.65rem;color:var(--text3);text-align:center;padding:6px 0;font-style:italic;border-top:1px dashed var(--border);margin-top:8px;padding-top:10px}
 </style>
 </head>
 <body>
@@ -343,7 +365,7 @@ input,select{font-family:inherit}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, doc, updateDoc, onSnapshot, query, orderBy, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, doc, updateDoc, onSnapshot, query, orderBy, getDoc, addDoc, getDocs, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // ===== FIREBASE (eyni konfiqurasiya) =====
 const fb = initializeApp({
@@ -355,6 +377,11 @@ const fb = initializeApp({
   appId:"1:435122002610:web:3d6e6af72f14d55b2a87ab"
 });
 const db = getFirestore(fb);
+// Enable offline persistence (silently fail if multiple tabs)
+enableIndexedDbPersistence(db).catch(err=>{
+  if(err.code==='failed-precondition')console.warn('Persistence: another tab is open');
+  else if(err.code==='unimplemented')console.warn('Persistence: browser unsupported');
+});
 
 // ===== CONSTANTS =====
 const DOMESTIC     = ['created','courier_pickup','warehouse_az','courier_delivery','delivered','done'];
@@ -382,26 +409,46 @@ const DEF_PERM={
 
 // ===== STATE =====
 let shipments=[], currentUser=null, currentRole='', currentPage='dashboard';
-let unsubShip=null, scanner=null, scannerActive=false, activeFilter='all';
+let unsubShip=null, scanner=null, activeFilter='all';
+// Scanner state — strict locking
+let scannerState='idle'; // 'idle' | 'starting' | 'running' | 'stopping' | 'processing'
+let lastScannedId=null, lastScannedAt=0;
+let lastShownDetailId=null;       // for live-refresh of detail modal
+let lastShownScanResultId=null;   // for live-refresh of scanner result
+let busyStatusBtn=false;          // dedupe status taps
 
 // ===== HELPERS =====
 const esc=v=>v==null?'':String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
 const isDone=s=>['delivered','done'].includes(s.status);
 const can=p=>{const perms=currentUser?.permissions||DEF_PERM[currentRole]||{};return currentRole==='admin'||perms[p]===1;};
+const now=()=>new Date().toISOString().slice(0,16).replace('T',' ');
 
-function toast(msg,err=false){
+function toast(msg,err=false,ms=3500){
   const b=document.getElementById('toastBox');
   const el=document.createElement('div');
   el.className='toast '+(err?'err':'ok');
   el.innerHTML=`<i class="fas fa-${err?'exclamation-circle':'check-circle'}"></i>${esc(msg)}`;
   b.appendChild(el);
-  setTimeout(()=>el.remove(),3500);
+  setTimeout(()=>el.remove(),ms);
 }
 function syncShow(){
   const p=document.getElementById('syncPill');
+  if(!p)return;
   p.classList.add('show');
-  setTimeout(()=>p.classList.remove('show'),2000);
+  if(!navigator.onLine){
+    p.innerHTML='<i class="fas fa-wifi-slash"></i> Oflayn';
+    p.style.background='var(--red-dim)';
+    p.style.color='var(--red)';
+  }else{
+    p.innerHTML='<i class="fas fa-check-circle"></i> Sinx';
+    p.style.background='';
+    p.style.color='';
+  }
+  clearTimeout(syncShow._t);
+  syncShow._t=setTimeout(()=>p.classList.remove('show'),2000);
 }
+window.addEventListener('online', ()=>{toast('🟢 Onlayn rejimə qayıtdı'); syncShow();});
+window.addEventListener('offline',()=>{toast('🔴 Oflayn rejim — dəyişikliklər gözləyəcək',true,5000); syncShow();});
 
 // ===== NEXT STATUS =====
 function nextStatus(current,role,shipType){
@@ -476,6 +523,7 @@ function renderDashboard(){
 function buildFilters(){
   const filters=[
     {key:'all',label:'Hamısı'},
+    {key:'mine',label:'⭐ Təhvil aldıqlarım'},
     {key:'active',label:'Aktiv'},
     {key:'created',label:'Yaradıldı'},
     {key:'courier_pickup',label:'Götürüldü'},
@@ -501,7 +549,11 @@ window.filterShips=function(){renderShipments();};
 
 function renderShipments(){
   let list=getMyShips();
-  if(activeFilter==='active') list=list.filter(s=>!isDone(s));
+  if(activeFilter==='mine'){
+    const myId=currentUser?.id||currentUser?.username||'';
+    list=list.filter(s=>(s.timeline||[]).some(t=>t.byId===myId));
+  }
+  else if(activeFilter==='active') list=list.filter(s=>!isDone(s));
   else if(activeFilter!=='all') list=list.filter(s=>s.status===activeFilter);
   const q=(document.getElementById('searchInp')?.value||'').toLowerCase().trim();
   if(q) list=list.filter(s=>
@@ -518,6 +570,7 @@ function renderShipments(){
 function shipCard(s,showAll){
   const nxt=nextStatus(s.status,currentRole,s.shipType||'domestic');
   const phone=s.receiverPhone||'';
+  const handler=s.currentHandler?`<div class="sc-addr" style="color:var(--gold);margin-top:4px"><i class="fas fa-user-shield" style="font-size:.65rem"></i> ${esc(s.currentHandler)}</div>`:'';
   return `<div class="ship-card" onclick="openDetail('${esc(s.id)}')">
     <div class="sc-head">
       <span class="sc-id">${esc(s.id)}</span>
@@ -529,6 +582,7 @@ function shipCard(s,showAll){
         <div class="sc-name">${esc((s.receiverName||'')+' '+(s.receiverSurname||''))}</div>
         <div class="sc-phone">${esc(phone)}</div>
         ${s.receiverAddress?`<div class="sc-addr">📍 ${esc(s.receiverAddress)}</div>`:''}
+        ${handler}
       </div>
     </div>
     ${showAll?`<div class="sc-actions" onclick="event.stopPropagation()">
@@ -540,13 +594,114 @@ function shipCard(s,showAll){
 
 // ===== QUICK STATUS =====
 window.quickStatus=async function(id,newStatus){
-  if(!confirm(`Status: "${LABEL[newStatus]}" olaraq yeniləyilsin?`))return;
+  if(busyStatusBtn)return;          // prevent double-tap
+  busyStatusBtn=true;
+  setTimeout(()=>{busyStatusBtn=false;},1500);
+
+  const s=shipments.find(x=>x.id===id);
+  if(!s){toast('Bağlama tapılmadı',true);return;}
+
+  // Re-validate: another worker might have already moved it forward
+  const expectedNxt=nextStatus(s.status,currentRole,s.shipType||'domestic');
+  if(expectedNxt!==newStatus){
+    toast(`⚠️ Status artıq dəyişib: ${LABEL[s.status]}`,true);
+    if(currentPage==='dashboard')renderDashboard();
+    else if(currentPage==='shipments')renderShipments();
+    if(lastShownDetailId===id)refreshDetailModal(id);
+    if(lastShownScanResultId===id)refreshScanResult(id);
+    return;
+  }
+
+  const oldStatus=s.status;
+  const ts=now();
+  const fullName=((currentUser?.name||'')+' '+(currentUser?.surname||'')).trim();
+  const handlerId=currentUser?.id||currentUser?.username||'';
+
+  // Build timeline entry
+  const entry={
+    status:newStatus,
+    fromStatus:oldStatus,
+    by:fullName,
+    byId:handlerId,
+    role:currentRole,
+    at:ts,
+    via:'mobile'
+  };
+
+  // Build the patch we'll send to Firestore
+  const patch={
+    status:newStatus,
+    timeline:[...(s.timeline||[]),entry],
+    currentHandler:fullName,
+    currentHandlerId:handlerId,
+    currentHandlerRole:currentRole,
+    lastUpdate:ts
+  };
+  // Track who specifically picked it up at each role transition
+  if(currentRole==='warehouse' && (newStatus==='warehouse_az' || newStatus==='warehouse_tr')){
+    patch.acceptedWarehouseId=handlerId;
+    patch.acceptedWarehouseName=fullName;
+    patch.acceptedWarehouseAt=ts;
+  }
+  if(currentRole==='courier'){
+    if(newStatus==='courier_pickup' || newStatus==='courier_delivery'){
+      patch.assignedCourierId=handlerId;
+      patch.assignedCourierName=fullName;
+      patch.assignedCourierAt=ts;
+    }
+    if(newStatus==='delivered'){
+      patch.deliveredById=handlerId;
+      patch.deliveredByName=fullName;
+      patch.deliveredAt=ts;
+    }
+  }
+
+  // Optimistic local update — UI feels instant
+  Object.assign(s,patch);
+  if(currentPage==='dashboard')renderDashboard();
+  else if(currentPage==='shipments')renderShipments();
+  if(lastShownDetailId===id)refreshDetailModal(id);
+  if(lastShownScanResultId===id)refreshScanResult(id);
+
   try{
-    await updateDoc(doc(db,'shipments',id),{status:newStatus});
+    await updateDoc(doc(db,'shipments',id),patch);
+    // Best-effort history write — don't fail UX if this errors
+    addDoc(collection(db,'history'),{
+      action:newStatus,
+      message:`${id}: ${LABEL[oldStatus]||oldStatus} → ${LABEL[newStatus]||newStatus} (${fullName} - mobil)`,
+      user:fullName,
+      userId:handlerId,
+      role:currentRole,
+      time:ts
+    }).catch(()=>{});
     toast(`✅ ${LABEL[newStatus]}`);
     closeModal();
-  }catch(e){toast('Xəta: '+e.message,true);}
+  }catch(e){
+    // Rollback on failure
+    s.status=oldStatus;
+    s.timeline=(s.timeline||[]).slice(0,-1);
+    if(currentPage==='dashboard')renderDashboard();
+    else if(currentPage==='shipments')renderShipments();
+    if(lastShownDetailId===id)refreshDetailModal(id);
+    if(lastShownScanResultId===id)refreshScanResult(id);
+    toast('Xəta: '+(e.message||e),true);
+  }
 };
+
+function refreshDetailModal(id){
+  const s=shipments.find(x=>x.id===id);
+  if(!s)return;
+  // Re-render only if modal is still open
+  if(!document.getElementById('detailModal').classList.contains('open'))return;
+  openDetail(id);
+}
+function refreshScanResult(id){
+  const s=shipments.find(x=>x.id===id);
+  if(!s)return;
+  const node=document.getElementById('scanResult');
+  if(!node||!node.classList.contains('show'))return;
+  showScanResult(s);
+}
 
 // ===== WHATSAPP =====
 window.sendWA=function(phone,id,status){
@@ -555,26 +710,70 @@ window.sendWA=function(phone,id,status){
   window.open(`https://wa.me/${p}?text=${msg}`,'_blank');
 };
 
+// ===== TIMELINE RENDERING =====
+// Permissions for viewing the full handler trail:
+// - admin & manager see everything
+// - warehouse / courier / operator see only their own steps; everyone else's is hidden
+function canSeeFullTimeline(){
+  return currentRole==='admin' || currentRole==='manager';
+}
+function renderHandlerStrip(s){
+  // Show "who currently has it" when there is a current handler
+  if(!s.currentHandler && !s.assignedCourierName && !s.acceptedWarehouseName)return '';
+  let label='Hazırda kimdədir';
+  let name=s.currentHandler||'—';
+  let meta=ROLES[s.currentHandlerRole]||s.currentHandlerRole||'';
+  if(s.lastUpdate)meta+=meta?' · ':'';
+  if(s.lastUpdate)meta+=esc(s.lastUpdate);
+  const initial=(name||'?')[0].toUpperCase();
+  return `<div class="handler-strip"><div class="h-ico">${esc(initial)}</div><div class="h-info"><div class="h-lbl">${esc(label)}</div><div class="h-name">${esc(name)}</div><div class="h-meta">${esc(meta)}</div></div></div>`;
+}
+function renderTimeline(s){
+  const tl=Array.isArray(s.timeline)?s.timeline:[];
+  if(!tl.length){
+    return `<div class="timeline-section"><div class="ts-title"><i class="fas fa-history"></i> Tarixçə</div><div class="tl-empty">Bu bağlama üçün hələ qeyd yoxdur</div></div>`;
+  }
+  const myId=currentUser?.id||currentUser?.username||'';
+  const full=canSeeFullTimeline();
+  const visible=full?tl:tl.filter(e=>e.byId===myId);
+  let hiddenCount=full?0:(tl.length-visible.length);
+  // Newest first
+  const ordered=[...visible].reverse();
+  const items=ordered.map(e=>{
+    const isMe=e.byId===myId;
+    const cls=isMe?'tl-step':'tl-step tl-other';
+    const lbl=LABEL[e.status]||e.status;
+    const via=e.via?`<span class="tl-via">${esc(e.via)}</span>`:'';
+    return `<div class="${cls}"><div class="tl-status">${esc(lbl)}${via}</div>${full||isMe?`<div class="tl-by">${esc(e.by||'—')}${e.role?` · ${esc(ROLES[e.role]||e.role)}`:''}</div>`:''}<div class="tl-time">${esc(e.at||'')}</div></div>`;
+  }).join('');
+  const hint=(!full&&hiddenCount>0)?`<div class="tl-hidden-note">+ ${hiddenCount} digər addım gizlidir</div>`:'';
+  const emptyOwn=(!full&&visible.length===0)?`<div class="tl-empty">Bu bağlamada sizin əməliyyatınız yoxdur</div>`:'';
+  return `<div class="timeline-section"><div class="ts-title"><i class="fas fa-history"></i> Tarixçə</div><div class="timeline">${items}${emptyOwn}</div>${hint}</div>`;
+}
+
 // ===== DETAIL =====
 window.openDetail=async function(id){
   const s=shipments.find(x=>x.id===id);
   if(!s)return;
+  lastShownDetailId=id;
   const nxt=nextStatus(s.status,currentRole,s.shipType||'domestic');
   document.getElementById('detailTitle').textContent=s.id;
   document.getElementById('detailBody').innerHTML=`
     <div style="text-align:center;margin-bottom:14px">
       <span class="badge ${BADGE_CLS[s.status]||'created'}" style="font-size:.75rem;padding:6px 14px">${esc(LABEL[s.status]||s.status)}</span>
     </div>
+    ${renderHandlerStrip(s)}
     <div class="detail-row"><span class="lbl">Alan</span><span class="val">${esc((s.receiverName||'')+' '+(s.receiverSurname||''))}</span></div>
     <div class="detail-row"><span class="lbl">Telefon</span><span class="val">${esc(s.receiverPhone||'—')}</span></div>
     <div class="detail-row"><span class="lbl">Ünvan</span><span class="val">${esc(s.receiverAddress||'—')}</span></div>
     <div class="detail-row"><span class="lbl">Göndərən</span><span class="val">${esc((s.senderName||'')+' '+(s.senderSurname||''))}</span></div>
     <div class="detail-row"><span class="lbl">Göndərən telefon</span><span class="val">${esc(s.senderPhone||'—')}</span></div>
     <div class="detail-row"><span class="lbl">Çəki</span><span class="val">${esc(s.weight||0)} kg</span></div>
-    <div class="detail-row"><span class="lbl">Məbləğ</span><span class="val" style="color:var(--gold)">${esc(s.shipPrice||0)} ₼</span></div>
+    ${can('finance')?`<div class="detail-row"><span class="lbl">Məbləğ</span><span class="val" style="color:var(--gold)">${esc(s.shipPrice||0)} ₼</span></div>`:''}
     <div class="detail-row"><span class="lbl">Daşınma növü</span><span class="val">${s.shipType==='international'?'🌍 Beynəlxalq':'🇦🇿 Daxili'}</span></div>
     ${s.notes?`<div class="detail-row"><span class="lbl">Qeyd</span><span class="val">${esc(s.notes)}</span></div>`:''}
     <div class="detail-row"><span class="lbl">Tarix</span><span class="val">${esc((s.createdAt||'').slice(0,16))}</span></div>
+    ${renderTimeline(s)}
     <div class="status-btns">
       ${nxt&&can('status')?`<button class="status-action next" onclick="quickStatus('${esc(s.id)}','${esc(nxt)}')"><i class="fas fa-arrow-right"></i> ${esc(LABEL[nxt])}</button>`:''}
       ${s.receiverPhone?`<button class="status-action wa" onclick="sendWA('${esc(s.receiverPhone)}','${esc(s.id)}','${esc(s.status)}')"><i class="fab fa-whatsapp"></i> WhatsApp ilə bildir</button>`:''}
@@ -588,59 +787,161 @@ window.closeDetail=function(e){
 };
 window.closeModal=function(){
   document.getElementById('detailModal').classList.remove('open');
+  lastShownDetailId=null;
 };
 
-// ===== SCANNER =====
-function startScanner(){
-  if(scannerActive)return;
-  scannerActive=true;
+// ===== SCANNER (rewritten with strict state machine) =====
+async function startScanner(){
+  // Guard: only start from clean states
+  if(scannerState!=='idle'){
+    console.warn('startScanner skipped, state =',scannerState);
+    return;
+  }
+  scannerState='starting';
+
+  const readerEl=document.getElementById('reader');
+  if(!readerEl){scannerState='idle';return;}
+  // Clean any leftover video/canvas from previous session
+  readerEl.innerHTML='';
+  // Reset dedup
+  lastScannedId=null;
+  lastScannedAt=0;
+
+  // Build a fresh instance every time — old refs may be stale
+  try{
+    scanner=new Html5Qrcode("reader",{verbose:false});
+  }catch(e){
+    scannerState='idle';
+    showScannerError('Skaner başlatıla bilmədi: '+(e.message||e));
+    return;
+  }
+
   const config={fps:10,qrbox:{width:250,height:250},aspectRatio:1.0};
-  scanner=new Html5Qrcode("reader");
-  scanner.start({facingMode:"environment"},config,async(qrCode)=>{
-    await scanner.stop().catch(()=>{});
-    scannerActive=false;
-    const id=qrCode.trim();
-    const found=shipments.find(s=>s.id===id);
-    if(found){
-      showScanResult(found);
-    }else{
-      const snap=await getDoc(doc(db,'shipments',id)).catch(()=>null);
-      if(snap&&snap.exists()){showScanResult({...snap.data()});}
-      else{document.getElementById('scanResult').innerHTML=`<div style="color:var(--red);text-align:center;padding:20px"><i class="fas fa-times-circle" style="font-size:2rem;display:block;margin-bottom:8px"></i>Bağlama tapılmadı: ${esc(id)}</div>`;document.getElementById('scanResult').classList.add('show');}
+  try{
+    await scanner.start(
+      {facingMode:"environment"},
+      config,
+      onScanSuccess,
+      ()=>{} // ignore decode-fail callbacks (they fire constantly)
+    );
+    scannerState='running';
+  }catch(e){
+    scannerState='idle';
+    scanner=null;
+    const msg=String(e.message||e||'');
+    if(msg.toLowerCase().includes('permission')||msg.toLowerCase().includes('notallowed'))
+      showScannerError('📷 Kamera icazəsi rədd edildi. Brauzer parametrlərindən icazə verin.');
+    else if(msg.toLowerCase().includes('notfound'))
+      showScannerError('📷 Kamera tapılmadı bu cihazda.');
+    else
+      showScannerError('Skaner xətası: '+msg);
+  }
+}
+
+function showScannerError(message){
+  const el=document.getElementById('scanResult');
+  if(!el)return;
+  el.classList.add('show');
+  el.innerHTML=`<div style="color:var(--red);text-align:center;padding:20px"><i class="fas fa-camera" style="font-size:2rem;display:block;margin-bottom:8px"></i>${esc(message)}<button onclick="restartScanner()" style="margin-top:14px;padding:10px 20px;border-radius:12px;background:var(--card);border:1px solid var(--border);color:var(--text2);font-weight:700;font-size:.85rem">Yenidən cəhd et</button></div>`;
+}
+
+async function onScanSuccess(qrCode){
+  // Dedup: html5-qrcode fires ~10x/sec on a successful detect.
+  // Ignore re-fires within 2 seconds.
+  const id=String(qrCode||'').trim();
+  const ts=Date.now();
+  if(id===lastScannedId && (ts-lastScannedAt)<2000)return;
+  lastScannedId=id; lastScannedAt=ts;
+
+  // Only process if still running, then transition to processing
+  if(scannerState!=='running')return;
+  scannerState='processing';
+
+  // Stop the camera safely (idempotent)
+  await stopScannerSafe();
+
+  if(!id){scannerState='idle';return;}
+
+  // Try local cache first (fastest)
+  let found=shipments.find(s=>s.id===id);
+  if(!found){
+    try{
+      const snap=await getDoc(doc(db,'shipments',id));
+      if(snap.exists())found={...snap.data(),id:snap.id};
+    }catch(e){console.warn('getDoc fail:',e.message);}
+  }
+  scannerState='idle';
+
+  if(found){
+    showScanResult(found);
+  }else{
+    const el=document.getElementById('scanResult');
+    if(el){
+      el.classList.add('show');
+      el.innerHTML=`<div style="color:var(--red);text-align:center;padding:20px"><i class="fas fa-times-circle" style="font-size:2rem;display:block;margin-bottom:8px"></i>Bağlama tapılmadı: ${esc(id)}<button onclick="restartScanner()" style="margin-top:14px;padding:10px 20px;border-radius:12px;background:var(--card);border:1px solid var(--border);color:var(--text2);font-weight:700;font-size:.85rem">Yenidən skan et</button></div>`;
     }
-  },()=>{});
+  }
 }
 
 function showScanResult(s){
+  lastShownScanResultId=s.id;
   const nxt=nextStatus(s.status,currentRole,s.shipType||'domestic');
-  document.getElementById('scanResult').classList.add('show');
-  document.getElementById('scanResult').innerHTML=`
+  const node=document.getElementById('scanResult');
+  if(!node)return;
+  node.classList.add('show');
+  node.innerHTML=`
     <div class="sr-id">📦 ${esc(s.id)}</div>
     <div class="detail-row"><span class="lbl">Alan</span><span class="val">${esc((s.receiverName||'')+' '+(s.receiverSurname||''))}</span></div>
     <div class="detail-row"><span class="lbl">Ünvan</span><span class="val">${esc(s.receiverAddress||'—')}</span></div>
     <div class="detail-row"><span class="lbl">Status</span><span class="val"><span class="badge ${BADGE_CLS[s.status]||'created'}">${esc(LABEL[s.status]||s.status)}</span></span></div>
+    ${renderHandlerStrip(s)}
     ${nxt&&can('status')?`<button class="status-action next" style="width:100%;margin-top:12px;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:12px;background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.25);font-weight:700" onclick="quickStatus('${esc(s.id)}','${esc(nxt)}')"><i class="fas fa-arrow-right"></i> ${esc(LABEL[nxt])}</button>`:''}
     <button onclick="restartScanner()" style="width:100%;margin-top:8px;padding:12px;border-radius:12px;background:var(--card);border:1px solid var(--border);color:var(--text2);font-weight:700;font-size:.85rem"><i class="fas fa-redo"></i> Yenidən skan et</button>
   `;
 }
 
-window.restartScanner=function(){
-  document.getElementById('scanResult').classList.remove('show');
-  document.getElementById('scanResult').innerHTML='';
-  setTimeout(startScanner,300);
+window.restartScanner=async function(){
+  const el=document.getElementById('scanResult');
+  if(el){el.classList.remove('show');el.innerHTML='';}
+  lastShownScanResultId=null;
+  // Make sure any prior scanner is fully torn down first
+  await stopScannerSafe();
+  // Tiny delay lets the camera resource release on iOS
+  setTimeout(startScanner,250);
 };
 
-function stopScanner(){
-  if(scanner&&scannerActive){
-    scanner.stop().catch(()=>{});
-    scannerActive=false;
+async function stopScannerSafe(){
+  if(!scanner){scannerState='idle';return;}
+  if(scannerState==='stopping'||scannerState==='idle'){return;}
+  const prev=scannerState;
+  scannerState='stopping';
+  try{
+    // Only call .stop() if html5-qrcode believes it's running
+    const state=scanner.getState?.();
+    // States: 1=NOT_STARTED, 2=SCANNING, 3=PAUSED
+    if(state===2||state===3){
+      await scanner.stop();
+    }
+    try{await scanner.clear();}catch(_){}
+  }catch(e){
+    console.warn('stopScannerSafe:',e.message||e);
+  }finally{
+    scanner=null;
+    // Wipe any leftover video element
+    const r=document.getElementById('reader');
+    if(r)r.innerHTML='';
+    scannerState='idle';
   }
 }
+// Backward-compat alias
+async function stopScanner(){return stopScannerSafe();}
 
 // ===== NAVIGATION =====
-window.navTo=function(page){
+window.navTo=async function(page){
   if(page===currentPage&&page==='scanner')return;
-  if(currentPage==='scanner'&&page!=='scanner')stopScanner();
+  if(currentPage==='scanner'&&page!=='scanner'){
+    await stopScannerSafe();
+  }
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('pg-'+page)?.classList.add('active');
@@ -649,9 +950,10 @@ window.navTo=function(page){
   if(page==='dashboard')renderDashboard();
   else if(page==='shipments'){buildFilters();renderShipments();}
   else if(page==='scanner'){
-    document.getElementById('scanResult').classList.remove('show');
-    document.getElementById('scanResult').innerHTML='';
-    setTimeout(startScanner,400);
+    const r=document.getElementById('scanResult');
+    if(r){r.classList.remove('show');r.innerHTML='';}
+    lastShownScanResultId=null;
+    setTimeout(startScanner,300);
   }
   document.getElementById('content').scrollTop=0;
 };
@@ -679,10 +981,9 @@ window.doLogin=async function(){
   
   let empList=DEFAULT_EMPLOYEES;
   try{
-    const {getDocs,collection}=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
     const snap=await getDocs(collection(db,'employees'));
     if(!snap.empty)empList=snap.docs.map(d=>({...d.data()}));
-  }catch(e){}
+  }catch(e){console.warn('Employees fetch fail:',e.message);}
   
   const user=empList.find(e=>e.username===u&&e.password===p&&e.active!==0);
   if(!user){toast('İstifadəçi adı və ya şifrə yanlışdır',true);return;}
@@ -706,25 +1007,43 @@ window.doLogin=async function(){
     shipments=snap.docs.map(d=>({...d.data()}));
     if(currentPage==='dashboard')renderDashboard();
     else if(currentPage==='shipments')renderShipments();
+    // If detail modal is open — refresh it (status may have changed elsewhere)
+    if(lastShownDetailId){
+      const m=document.getElementById('detailModal');
+      if(m&&m.classList.contains('open'))openDetail(lastShownDetailId);
+    }
+    // If scanner result is shown — refresh it
+    if(lastShownScanResultId){
+      const sr=document.getElementById('scanResult');
+      if(sr&&sr.classList.contains('show')){
+        const fresh=shipments.find(x=>x.id===lastShownScanResultId);
+        if(fresh)showScanResult(fresh);
+      }
+    }
     syncShow();
+  },err=>{
+    console.error('Snapshot error:',err);
+    toast('Sinxronizasiya xətası: '+err.message,true);
   });
   
   renderDashboard();
   toast(`Xoş gəldiniz, ${user.name}! 👋`);
 };
 
-window.doLogout=function(){
+window.doLogout=async function(){
   if(!confirm('Sistemdən çıxmaq istəyirsiniz?'))return;
-  stopScanner();
+  await stopScannerSafe();
   if(unsubShip){unsubShip();unsubShip=null;}
   currentUser=null;currentRole='';
   shipments=[];activeFilter='all';
+  lastShownDetailId=null;lastShownScanResultId=null;
   document.getElementById('app').style.display='none';
   document.getElementById('loginScreen').style.display='flex';
   document.getElementById('lUser').value='';
   document.getElementById('lPass').value='';
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  currentPage='dashboard';
 };
 
 // ===== INIT =====
@@ -740,6 +1059,21 @@ setTimeout(()=>{
 // Back button closes modal
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape')closeModal();
+});
+
+// When the user backgrounds the app and returns, the camera often dies on iOS/Android.
+// If we were on the scanner page, force a clean restart.
+document.addEventListener('visibilitychange',async()=>{
+  if(document.visibilityState==='hidden'){
+    if(currentPage==='scanner') await stopScannerSafe();
+  }else if(document.visibilityState==='visible'){
+    if(currentPage==='scanner' && currentUser){
+      const r=document.getElementById('scanResult');
+      if(r){r.classList.remove('show');r.innerHTML='';}
+      lastShownScanResultId=null;
+      setTimeout(startScanner,400);
+    }
+  }
 });
 </script>
 </body>
