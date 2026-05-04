@@ -192,6 +192,26 @@ input::placeholder,textarea::placeholder{color:var(--text3);opacity:.7}
 .status-next{background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.25)}
 .status-prev{background:rgba(230,57,70,.12);color:var(--red);border:1px solid rgba(230,57,70,.25)}
 
+/* ===== HANDLER & TIMELINE (DETAIL) ===== */
+.handler-strip{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,rgba(240,165,0,.10),rgba(240,165,0,.03));border:1px solid rgba(240,165,0,.22);border-radius:12px;padding:12px 14px;margin:0 0 16px}
+.handler-strip .h-ico{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#c78500);display:flex;align-items:center;justify-content:center;color:#000;font-weight:800;flex-shrink:0;font-size:1rem}
+.handler-strip .h-info{flex:1;min-width:0}
+.handler-strip .h-info .h-lbl{font-size:.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;font-weight:700}
+.handler-strip .h-info .h-name{font-size:.95rem;color:#fff;font-weight:700}
+.handler-strip .h-info .h-meta{font-size:.7rem;color:var(--text3);margin-top:2px}
+.timeline{position:relative;padding-left:24px;margin-bottom:16px}
+.timeline::before{content:'';position:absolute;left:8px;top:6px;bottom:6px;width:2px;background:var(--border)}
+.tl-step{position:relative;padding-bottom:14px}
+.tl-step:last-child{padding-bottom:0}
+.tl-step::before{content:'';position:absolute;left:-21px;top:5px;width:14px;height:14px;border-radius:50%;background:var(--surface);border:2px solid var(--gold);box-shadow:0 0 0 3px var(--bg)}
+.tl-step.tl-other::before{border-color:var(--text3)}
+.tl-step .tl-status{font-size:.84rem;font-weight:700;color:#fff}
+.tl-step .tl-by{font-size:.74rem;color:var(--gold);margin-top:2px}
+.tl-step .tl-time{font-size:.66rem;color:var(--text3);margin-top:1px}
+.tl-step .tl-via{display:inline-block;font-size:.58rem;background:rgba(255,255,255,.05);color:var(--text3);padding:1px 7px;border-radius:8px;margin-left:6px;text-transform:uppercase;letter-spacing:.4px}
+.tl-empty{font-size:.78rem;color:var(--text3);padding:8px 0;font-style:italic}
+.tl-hidden-note{font-size:.7rem;color:var(--text3);padding:8px 0;font-style:italic;border-top:1px dashed var(--border);margin-top:6px;padding-top:8px}
+
 /* ===== PROGRESS ===== */
 .progress-track{display:flex;align-items:center;margin:16px 0;overflow-x:auto;padding:8px 0}
 .prog-step{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;min-width:65px}
@@ -520,7 +540,8 @@ function nextStatus(current,role,shipType){
 // ===== RENDER TABLE =====
 function renderTable(list){
   if(!list.length)return'<div class="empty-state"><i class="fas fa-box-open"></i><p>Bağlama tapılmadı</p></div>';
-  return`<div class="table-wrap"><div class="table-head"><div>ID</div><div>Göndərən</div><div>Çəki/Məbləğ</div><div>Alan</div><div>Ünvan</div><div>Tarix</div><div>Status</div><div>Əməliyyat</div></div>${list.map(s=>`<div class="table-row"><div class="id" onclick="viewDetail('${escA(s.id)}')">${esc(s.id)}</div><div>${esc(s.senderName||'')} ${esc(s.senderSurname||'')}<br><small style="color:var(--text3)">${esc(s.senderPhone||'')}</small></div><div>${esc(s.weight||0)}kg<br><span style="color:var(--gold)">${esc(s.shipPrice||0)}₼</span></div><div>${esc(s.receiverName||'')} ${esc(s.receiverSurname||'')}<br><small style="color:var(--text3)">${esc(s.receiverPhone||'')}</small></div><div><small style="color:var(--text2)">${esc((s.receiverAddress||'').substring(0,35))}</small></div><div><small style="color:var(--text3)">${esc((s.createdAt||'').slice(0,10))}</small></div><div><span class="badge ${BADGE_CLS[s.status]||'created'}">${esc(LABEL[s.status]||s.status)}</span></div><div class="actions-bar"><button class="action-btn act-view" title="Bax" onclick="viewDetail('${escA(s.id)}')"><i class="fas fa-eye"></i></button><button class="action-btn act-qr" title="QR" onclick="showQR('${escA(s.id)}')"><i class="fas fa-qrcode"></i></button>${can('edit')?`<button class="action-btn act-edit" title="Redaktə" onclick="editShip('${escA(s.id)}')"><i class="fas fa-pen"></i></button>`:''}<button class="action-btn act-wa" title="WhatsApp" onclick="sendWA('${escA(s.receiverPhone||'')}','${escA(s.id)}','${escA(s.status)}','${escA((s.receiverName||'')+' '+(s.receiverSurname||''))}')"><i class="fab fa-whatsapp"></i></button>${can('print')?`<button class="action-btn act-print" title="Çap" onclick="printLabel('${escA(s.id)}')"><i class="fas fa-print"></i></button>`:''}${can('delete')?`<button class="action-btn act-del" title="Sil" onclick="delShip('${escA(s.id)}')"><i class="fas fa-trash"></i></button>`:''}</div></div>`).join('')}</div>`;
+  const showFin=can('finance');
+  return`<div class="table-wrap"><div class="table-head"><div>ID</div><div>Göndərən</div><div>${showFin?'Çəki/Məbləğ':'Çəki'}</div><div>Alan</div><div>Ünvan</div><div>Tarix</div><div>Status</div><div>Əməliyyat</div></div>${list.map(s=>`<div class="table-row"><div class="id" onclick="viewDetail('${escA(s.id)}')">${esc(s.id)}</div><div>${esc(s.senderName||'')} ${esc(s.senderSurname||'')}<br><small style="color:var(--text3)">${esc(s.senderPhone||'')}</small></div><div>${esc(s.weight||0)}kg${showFin?`<br><span style="color:var(--gold)">${esc(s.shipPrice||0)}₼</span>`:''}</div><div>${esc(s.receiverName||'')} ${esc(s.receiverSurname||'')}<br><small style="color:var(--text3)">${esc(s.receiverPhone||'')}</small></div><div><small style="color:var(--text2)">${esc((s.receiverAddress||'').substring(0,35))}</small></div><div><small style="color:var(--text3)">${esc((s.createdAt||'').slice(0,10))}</small></div><div><span class="badge ${BADGE_CLS[s.status]||'created'}">${esc(LABEL[s.status]||s.status)}</span>${s.currentHandler?`<br><small style="color:var(--gold);font-size:.62rem"><i class="fas fa-user-shield" style="font-size:.6rem"></i> ${esc(s.currentHandler)}</small>`:''}</div><div class="actions-bar"><button class="action-btn act-view" title="Bax" onclick="viewDetail('${escA(s.id)}')"><i class="fas fa-eye"></i></button><button class="action-btn act-qr" title="QR" onclick="showQR('${escA(s.id)}')"><i class="fas fa-qrcode"></i></button>${can('edit')?`<button class="action-btn act-edit" title="Redaktə" onclick="editShip('${escA(s.id)}')"><i class="fas fa-pen"></i></button>`:''}<button class="action-btn act-wa" title="WhatsApp" onclick="sendWA('${escA(s.receiverPhone||'')}','${escA(s.id)}','${escA(s.status)}','${escA((s.receiverName||'')+' '+(s.receiverSurname||''))}')"><i class="fab fa-whatsapp"></i></button>${can('print')?`<button class="action-btn act-print" title="Çap" onclick="printLabel('${escA(s.id)}')"><i class="fas fa-print"></i></button>`:''}${can('delete')?`<button class="action-btn act-del" title="Sil" onclick="delShip('${escA(s.id)}')"><i class="fas fa-trash"></i></button>`:''}</div></div>`).join('')}</div>`;
 }
 
 function customerStats(){
@@ -541,7 +562,11 @@ function renderCustomers(){
   const rows=customerStats();
   const active=rows.reduce((a,c)=>a+c.active,0);
   const vip=rows.filter(c=>c.count>=5).length;
-  return `<div class="page"><div class="page-head"><h2><i class="fas fa-users"></i> Müştəri statistikası</h2></div><div class="stats-grid" style="grid-template-columns:repeat(4,1fr)"><div class="stat-card c5"><div class="icon"><i class="fas fa-address-book"></i></div><h3>${rows.length}</h3><p>Müştəri bazası</p></div><div class="stat-card c2"><div class="icon"><i class="fas fa-star"></i></div><h3>${vip}</h3><p>5+ sifariş</p></div><div class="stat-card c3"><div class="icon"><i class="fas fa-list-check"></i></div><h3>${active}</h3><p>Aktiv checklist</p></div><div class="stat-card c4"><div class="icon"><i class="fas fa-coins"></i></div><h3>${money(rows.reduce((a,c)=>a+c.total,0))}</h3><p>Ümumi ödəniş</p></div></div><div class="table-wrap"><div class="table-head" style="grid-template-columns:1.4fr 1fr 90px 90px 120px 130px"><div>Müştəri</div><div>Telefon</div><div>Sifariş</div><div>Aktiv</div><div>Ödəniş</div><div>Son tarix</div></div>${rows.map(c=>`<div class="table-row" onclick="openCustomer('${escA(c.phone)}')" style="grid-template-columns:1.4fr 1fr 90px 90px 120px 130px;cursor:pointer"><div><strong>${esc(c.name)}</strong><br><small style="color:var(--text3)">Aktiv checklist üçün kliklə</small></div><div>${esc(c.phone)}</div><div>${c.count}</div><div><span class="badge ${c.active?'courier_delivery':'done'}">${c.active}</span></div><div style="color:var(--gold)">${money(c.total)}</div><div>${esc((c.last||'').slice(0,10)||'—')}</div></div>`).join('')||'<div class="empty-state"><i class="fas fa-users"></i><p>Müştəri yoxdur</p></div>'}</div></div>`;
+  const showFin=can('finance');
+  const totalCard=showFin?`<div class="stat-card c4"><div class="icon"><i class="fas fa-coins"></i></div><h3>${money(rows.reduce((a,c)=>a+c.total,0))}</h3><p>Ümumi ödəniş</p></div>`:'';
+  const gridCols=showFin?'repeat(4,1fr)':'repeat(3,1fr)';
+  const colTpl=showFin?'1.4fr 1fr 90px 90px 120px 130px':'1.4fr 1fr 90px 90px 130px';
+  return `<div class="page"><div class="page-head"><h2><i class="fas fa-users"></i> Müştəri statistikası</h2></div><div class="stats-grid" style="grid-template-columns:${gridCols}"><div class="stat-card c5"><div class="icon"><i class="fas fa-address-book"></i></div><h3>${rows.length}</h3><p>Müştəri bazası</p></div><div class="stat-card c2"><div class="icon"><i class="fas fa-star"></i></div><h3>${vip}</h3><p>5+ sifariş</p></div><div class="stat-card c3"><div class="icon"><i class="fas fa-list-check"></i></div><h3>${active}</h3><p>Aktiv checklist</p></div>${totalCard}</div><div class="table-wrap"><div class="table-head" style="grid-template-columns:${colTpl}"><div>Müştəri</div><div>Telefon</div><div>Sifariş</div><div>Aktiv</div>${showFin?'<div>Ödəniş</div>':''}<div>Son tarix</div></div>${rows.map(c=>`<div class="table-row" onclick="openCustomer('${escA(c.phone)}')" style="grid-template-columns:${colTpl};cursor:pointer"><div><strong>${esc(c.name)}</strong><br><small style="color:var(--text3)">Aktiv checklist üçün kliklə</small></div><div>${esc(c.phone)}</div><div>${c.count}</div><div><span class="badge ${c.active?'courier_delivery':'done'}">${c.active}</span></div>${showFin?`<div style="color:var(--gold)">${money(c.total)}</div>`:''}<div>${esc((c.last||'').slice(0,10)||'—')}</div></div>`).join('')||'<div class="empty-state"><i class="fas fa-users"></i><p>Müştəri yoxdur</p></div>'}</div></div>`;
 }
 
 function renderAccounting(){
@@ -569,7 +594,7 @@ function renderPage(p){
     main.innerHTML=`<div class="page"><div class="page-head"><h2><i class="fas fa-home"></i> Panel</h2><div style="display:flex;gap:10px;flex-wrap:wrap">${can('create')?'<button class="btn btn-green" onclick="openNewShipment()"><i class="fas fa-plus"></i> Yeni Bağlama</button>':''}<button class="btn btn-ghost" onclick="openScanner()"><i class="fas fa-qrcode"></i> QR Skan</button>${can('import')?`<button class="btn btn-purple" onclick="openModal('modalImport')"><i class="fas fa-upload"></i> CSV İdxal</button><button class="btn btn-blue" onclick="exportCSV()"><i class="fas fa-download"></i> CSV İxrac</button>`:''}</div></div><div class="stats-grid"><div class="stat-card c1" onclick="gotoStatus('created')"><div class="icon"><i class="fas fa-plus-circle"></i></div><h3>${cnt.created||0}</h3><p>Yaradıldı</p></div><div class="stat-card c2" onclick="gotoStatus('warehouse_az')"><div class="icon"><i class="fas fa-warehouse"></i></div><h3>${cnt.warehouse_az||0}</h3><p>Anbarda</p></div><div class="stat-card c3" onclick="gotoStatus('courier_delivery')"><div class="icon"><i class="fas fa-motorcycle"></i></div><h3>${cnt.courier_delivery||0}</h3><p>Kuryerdə</p></div><div class="stat-card c4" onclick="gotoStatus('delivered')"><div class="icon"><i class="fas fa-check-circle"></i></div><h3>${cnt.delivered||0}</h3><p>Çatdırıldı</p></div><div class="stat-card c5" onclick="changePage('shipments')"><div class="icon"><i class="fas fa-layer-group"></i></div><h3>${shipments.length}</h3><p>Ümumi</p></div></div>${renderTable(shipments.slice(0,15))}</div>`;
   }
   else if(p==='shipments'){
-    main.innerHTML=`<div class="page"><div class="page-head"><h2><i class="fas fa-box"></i> Sifarişlər <span style="color:var(--text3);font-size:.8rem;font-weight:500" id="shipCount">(${shipments.length})</span></h2><div style="display:flex;gap:10px;flex-wrap:wrap">${can('create')?'<button class="btn btn-green" onclick="openNewShipment()"><i class="fas fa-plus"></i> Yeni</button>':''}${can('import')?'<button class="btn btn-blue" onclick="exportCSV()"><i class="fas fa-download"></i> CSV İxrac</button>':''}</div></div><div class="search-bar"><div class="search-box"><i class="fas fa-search"></i><input placeholder="ID, ad, telefon, izləmə kodu üzrə axtar..." oninput="filterTable()" id="searchInput"></div><select id="statusFilter" class="form-input" onchange="filterTable()" style="max-width:220px"><option value="all">Bütün statuslar</option>${Object.entries(LABEL).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div><div id="tableArea">${renderTable(shipments)}</div></div>`;
+    main.innerHTML=`<div class="page"><div class="page-head"><h2><i class="fas fa-box"></i> Sifarişlər <span style="color:var(--text3);font-size:.8rem;font-weight:500" id="shipCount">(${shipments.length})</span></h2><div style="display:flex;gap:10px;flex-wrap:wrap">${can('create')?'<button class="btn btn-green" onclick="openNewShipment()"><i class="fas fa-plus"></i> Yeni</button>':''}${can('import')?'<button class="btn btn-blue" onclick="exportCSV()"><i class="fas fa-download"></i> CSV İxrac</button>':''}</div></div><div class="search-bar"><div class="search-box"><i class="fas fa-search"></i><input placeholder="ID, ad, telefon, izləmə kodu üzrə axtar..." oninput="filterTable()" id="searchInput"></div><select id="statusFilter" class="form-input" onchange="filterTable()" style="max-width:220px"><option value="all">Bütün statuslar</option>${Object.entries(LABEL).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select><label style="display:inline-flex;align-items:center;gap:8px;background:rgba(240,165,0,.08);border:1px solid rgba(240,165,0,.25);border-radius:11px;padding:8px 14px;cursor:pointer;font-size:.78rem;color:var(--gold);font-weight:600;white-space:nowrap"><input type="checkbox" id="mineOnlyFilter" onchange="filterTable()" style="accent-color:var(--gold)"> ⭐ Təhvil aldıqlarım</label></div><div id="tableArea">${renderTable(shipments)}</div></div>`;
   }
   else if(p==='warehouse'){
     const wh=shipments.filter(s=>['courier_pickup','warehouse_az'].includes(s.status));
@@ -614,6 +639,69 @@ function applyLocalStatus(id,status){
     renderPage(currentPage);
   }
   syncShow();
+}
+
+// Apply a partial patch to local shipment + re-render. Used for optimistic updates.
+function applyLocalPatch(id,patch){
+  const s=shipments.find(x=>x.id===id);
+  if(s)Object.assign(s,patch);
+  if(currentUser&&['dashboard','shipments','warehouse','courier','report','finance','customers'].includes(currentPage)){
+    renderPage(currentPage);
+  }
+  syncShow();
+}
+
+// Build the patch we send to Firestore when changing status.
+// Always includes timeline entry + currentHandler. Adds role-specific
+// "who picked up" / "who accepted" fields where it makes sense.
+function buildStatusPatch(s,newStatus,opts){
+  opts=opts||{};
+  const ts=now();
+  const fullName=((currentUser?.name||'')+' '+(currentUser?.surname||'')).trim();
+  const handlerId=currentUser?.id||currentUser?.username||'';
+  const oldStatus=s.status;
+  const entry={
+    status:newStatus,
+    fromStatus:oldStatus,
+    by:fullName,
+    byId:handlerId,
+    role:currentRole,
+    at:ts,
+    via:opts.via||'desktop'
+  };
+  if(opts.note)entry.note=opts.note;
+  const patch={
+    status:newStatus,
+    timeline:[...(Array.isArray(s.timeline)?s.timeline:[]),entry],
+    currentHandler:fullName,
+    currentHandlerId:handlerId,
+    currentHandlerRole:currentRole,
+    lastUpdate:ts
+  };
+  if(currentRole==='warehouse' && (newStatus==='warehouse_az' || newStatus==='warehouse_tr')){
+    patch.acceptedWarehouseId=handlerId;
+    patch.acceptedWarehouseName=fullName;
+    patch.acceptedWarehouseAt=ts;
+  }
+  if(currentRole==='courier'){
+    if(newStatus==='courier_pickup' || newStatus==='courier_delivery'){
+      patch.assignedCourierId=handlerId;
+      patch.assignedCourierName=fullName;
+      patch.assignedCourierAt=ts;
+    }
+    if(newStatus==='delivered'){
+      patch.deliveredById=handlerId;
+      patch.deliveredByName=fullName;
+      patch.deliveredAt=ts;
+    }
+  }
+  return patch;
+}
+
+// Who can see the full handler trail in shipment details.
+// Admin & manager — yes. Everyone else — only their own steps.
+function canSeeFullTimeline(){
+  return currentRole==='admin' || currentRole==='manager';
 }
 
 window.openCustomer=phone=>{
@@ -666,10 +754,11 @@ async function onQRResult(text){
 
   if(nxt&&!needsManual){
     const oldStatus=s.status;
-    applyLocalStatus(text,nxt);
+    const patch=buildStatusPatch(s,nxt,{via:'desktop-qr'});
+    applyLocalPatch(text,patch);
     try{
-      await updateDoc(doc(db,'shipments',text),{status:nxt});
-      await addDoc(collection(db,'history'),{action:nxt,message:`${text}: ${LABEL[oldStatus]} → ${LABEL[nxt]} [QR skan - ${currentUser?.name}]`,user:currentUser?.name||'',role:currentRole,time:now()});
+      await updateDoc(doc(db,'shipments',text),patch);
+      await addDoc(collection(db,'history'),{action:nxt,message:`${text}: ${LABEL[oldStatus]} → ${LABEL[nxt]} [QR skan - ${currentUser?.name}]`,user:currentUser?.name||'',userId:currentUser?.id||currentUser?.username||'',role:currentRole,time:now()});
       res.innerHTML=`<div style="background:var(--green-dim);border-radius:12px;padding:16px;text-align:center;color:var(--green);font-weight:700">✅ Status dəyişdirildi: ${esc(LABEL[nxt])}<br><small style="color:var(--text2)">${esc(currentUser?.name||'')} (${esc(ROLES[currentRole]||'')})</small></div>`;
       syncShow();
     }catch(e){applyLocalStatus(text,oldStatus);res.innerHTML=`<div style="color:var(--red);padding:10px">Xəta: ${esc(e.message)}</div>`;}
@@ -683,16 +772,50 @@ window.markDelivered=async id=>{
   const s=shipments.find(s=>s.id===id);
   if(!s||s.status!=='courier_delivery'){toast('Yalnız "Kuryer çatdırır" mərhələsindəki bağlamalar üçün',true);return;}
   const oldStatus=s.status;
-  applyLocalStatus(id,'delivered');
+  const patch=buildStatusPatch(s,'delivered');
+  applyLocalPatch(id,patch);
   try{
-    await updateDoc(doc(db,'shipments',id),{status:'delivered'});
-    await addDoc(collection(db,'history'),{action:'delivered',message:`${id}: Kuryer çatdırır → Çatdırıldı [Kuryer: ${currentUser?.name}]`,user:currentUser?.name||'',role:currentRole,time:now()});
+    await updateDoc(doc(db,'shipments',id),patch);
+    await addDoc(collection(db,'history'),{action:'delivered',message:`${id}: Kuryer çatdırır → Çatdırıldı [Kuryer: ${currentUser?.name}]`,user:currentUser?.name||'',userId:currentUser?.id||currentUser?.username||'',role:currentRole,time:now()});
     syncShow();toast('✅ Çatdırıldı!');
     const res=document.getElementById('scanResult');
     if(res)res.innerHTML=`<div style="background:var(--green-dim);border:1px solid var(--green);border-radius:14px;padding:24px;text-align:center"><div style="font-size:2.5rem;margin-bottom:10px">🎉</div><div style="color:var(--green);font-weight:800;font-size:1.1rem;margin-bottom:6px">Çatdırıldı!</div><div style="color:var(--text2);font-size:.82rem;margin-bottom:16px">Bağlama ${esc(id)} uğurla çatdırıldı</div><div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><button class="btn btn-sm" style="background:#25D366;color:#fff" onclick="sendWA('${escA(s.receiverPhone||'')}','${escA(id)}','delivered','${escA((s.receiverName||'')+' '+(s.receiverSurname||''))}')"><i class="fab fa-whatsapp"></i> WhatsApp</button><button class="btn btn-ghost btn-sm" onclick="closeScanner()">Bağla</button></div></div>`;
     closeModal('modalDetail');
   }catch(e){applyLocalStatus(id,oldStatus);toast('Xəta: '+e.message,true);}
 };
+
+// Who can see the full handler trail in shipment details.
+function renderHandlerStrip(s){
+  if(!s.currentHandler && !s.assignedCourierName && !s.acceptedWarehouseName)return '';
+  const name=s.currentHandler||'—';
+  const role=ROLES[s.currentHandlerRole]||s.currentHandlerRole||'';
+  const ts=s.lastUpdate||'';
+  const meta=[role,ts].filter(Boolean).join(' · ');
+  const initial=(name||'?')[0].toUpperCase();
+  return `<div class="handler-strip"><div class="h-ico">${esc(initial)}</div><div class="h-info"><div class="h-lbl">Hazırda kimdədir</div><div class="h-name">${esc(name)}</div><div class="h-meta">${esc(meta)}</div></div></div>`;
+}
+function renderTimelineDesktop(s){
+  const tl=Array.isArray(s.timeline)?s.timeline:[];
+  if(!tl.length){
+    return `<div class="section-label"><i class="fas fa-history"></i> Tarixçə</div><div class="tl-empty">Bu bağlama üçün hələ qeyd yoxdur</div>`;
+  }
+  const myId=currentUser?.id||currentUser?.username||'';
+  const full=canSeeFullTimeline();
+  const visible=full?tl:tl.filter(e=>e.byId===myId);
+  const hiddenCount=full?0:(tl.length-visible.length);
+  const ordered=[...visible].reverse();
+  const items=ordered.map(e=>{
+    const isMe=e.byId===myId;
+    const cls=isMe?'tl-step':'tl-step tl-other';
+    const lbl=LABEL[e.status]||e.status;
+    const via=e.via?`<span class="tl-via">${esc(e.via)}</span>`:'';
+    const byLine=(full||isMe)?`<div class="tl-by">${esc(e.by||'—')}${e.role?` · ${esc(ROLES[e.role]||e.role)}`:''}</div>`:'';
+    return `<div class="${cls}"><div class="tl-status">${esc(lbl)}${via}</div>${byLine}<div class="tl-time">${esc(e.at||'')}</div></div>`;
+  }).join('');
+  const hint=(!full&&hiddenCount>0)?`<div class="tl-hidden-note">+ ${hiddenCount} digər addım gizlidir (yalnız admin və menecer görür)</div>`:'';
+  const emptyOwn=(!full&&visible.length===0)?`<div class="tl-empty">Bu bağlamada sizin əməliyyatınız yoxdur</div>`:'';
+  return `<div class="section-label"><i class="fas fa-history"></i> Tarixçə</div><div class="timeline">${items}${emptyOwn}</div>${hint}`;
+}
 
 // ===== DETAIL =====
 window.viewDetail=id=>{
@@ -706,10 +829,11 @@ window.viewDetail=id=>{
   document.getElementById('detailContent').innerHTML=`
 <div class="modal-title"><i class="fas fa-box"></i> Bağlama Detalları</div>
 <div class="progress-track">${seq.map((st,i)=>`<div class="prog-step"><div class="prog-dot ${i<idx?'done':i===idx?'current':''}"><i class="fas ${i<idx?'fa-check':i===idx?'fa-box':'fa-circle'}"></i></div><div class="prog-label">${esc(LABEL[st])}</div></div>${i<seq.length-1?`<div class="prog-line ${i<idx?'done':''}"></div>`:''}`).join('')}</div>
+${renderHandlerStrip(s)}
 <div class="detail-grid">
 <div class="detail-card"><label>ID</label><span style="font-family:'IBM Plex Mono',monospace;font-size:.78rem">${esc(s.id)}</span></div>
 <div class="detail-card"><label>Çəki</label><span>${esc(s.weight||0)} kg</span></div>
-<div class="detail-card"><label>Məbləğ</label><span>${esc(s.shipPrice||0)} ₼</span></div>
+${can('finance')?`<div class="detail-card"><label>Məbləğ</label><span>${esc(s.shipPrice||0)} ₼</span></div>`:''}
 <div class="detail-card"><label>Daşınma</label><span>${s.shipType==='international'?'🌍 Beynəlxalq':'🇦🇿 Daxili'}</span></div>
 <div class="detail-card"><label>Yaradan</label><span>${esc(s.createdByName||s.createdBy||'—')}</span></div>
 <div class="detail-card"><label>Status</label><span class="badge ${BADGE_CLS[s.status]||'created'}">${esc(LABEL[s.status]||s.status)}</span></div>
@@ -723,6 +847,7 @@ ${nxt&&!canDeliver?`<div class="section-label">Statusu dəyiş</div><div class="
 ${canDeliver?`<div class="section-label">Çatdırılma Təsdiqi</div><div class="status-buttons"><button class="status-btn status-next" style="background:rgba(34,197,94,.18)" onclick="markDelivered('${escA(s.id)}');closeModal('modalDetail')"><i class="fas fa-check-circle"></i> Çatdırıldı — Təsdiqlə</button></div>`:''}
 ${prevStatuses.length?`<div class="section-label">Geri Al (Yalnız Admin)</div><div class="status-buttons">${prevStatuses.map(st=>`<button class="status-btn status-prev" onclick="rollbackStatus('${escA(s.id)}','${escA(st)}')"><i class="fas fa-arrow-left"></i> ${esc(LABEL[st])}</button>`).join('')}</div>`:''}
 ${s.customerNote?`<div class="section-label">Müştəri qeydi</div><div class="detail-card full"><span style="font-size:.82rem;color:var(--text2)">${esc(s.customerNote)}</span></div>`:''}
+${renderTimelineDesktop(s)}
 <div style="display:flex;gap:8px;margin-top:20px;flex-wrap:wrap">
 <button class="btn btn-gold btn-sm" onclick="showQR('${escA(s.id)}')"><i class="fas fa-qrcode"></i> QR</button>
 ${can('edit')?`<button class="btn btn-blue btn-sm" onclick="closeModal('modalDetail');editShip('${escA(s.id)}')"><i class="fas fa-pen"></i> Redaktə</button>`:''}
@@ -736,15 +861,25 @@ ${can('print')?`<button class="btn btn-ghost btn-sm" onclick="printLabel('${escA
 window.changeStatus=async(id,nxt)=>{
   const s=shipments.find(s=>s.id===id);if(!s)return;
   const oldStatus=s.status;
-  applyLocalStatus(id,nxt);
-  try{await updateDoc(doc(db,'shipments',id),{status:nxt});await addDoc(collection(db,'history'),{action:nxt,message:`${id}: ${LABEL[oldStatus]} → ${LABEL[nxt]} (${currentUser?.name})`,user:currentUser?.name,role:currentRole,time:now()});toast('✅ Status dəyişdi');closeModal('modalDetail');}catch(e){applyLocalStatus(id,oldStatus);toast('Xəta: '+e.message,true);}
+  const patch=buildStatusPatch(s,nxt);
+  applyLocalPatch(id,patch);
+  try{
+    await updateDoc(doc(db,'shipments',id),patch);
+    await addDoc(collection(db,'history'),{action:nxt,message:`${id}: ${LABEL[oldStatus]} → ${LABEL[nxt]} (${currentUser?.name})`,user:currentUser?.name,userId:currentUser?.id||currentUser?.username||'',role:currentRole,time:now()});
+    toast('✅ Status dəyişdi');closeModal('modalDetail');
+  }catch(e){applyLocalStatus(id,oldStatus);toast('Xəta: '+e.message,true);}
 };
 window.rollbackStatus=async(id,prev)=>{
   if(currentRole!=='admin'){toast('Yalnız admin geri ala bilər',true);return;}
   const s=shipments.find(s=>s.id===id);if(!s)return;
   const oldStatus=s.status;
-  applyLocalStatus(id,prev);
-  try{await updateDoc(doc(db,'shipments',id),{status:prev});await addDoc(collection(db,'history'),{action:prev,message:`${id}: GERİ ALMA → ${LABEL[prev]} (${currentUser?.name})`,user:currentUser?.name,role:currentRole,time:now()});toast('🔄 Geri alındı');closeModal('modalDetail');}catch(e){applyLocalStatus(id,oldStatus);toast('Xəta: '+e.message,true);}
+  const patch=buildStatusPatch(s,prev,{note:'rollback'});
+  applyLocalPatch(id,patch);
+  try{
+    await updateDoc(doc(db,'shipments',id),patch);
+    await addDoc(collection(db,'history'),{action:prev,message:`${id}: GERİ ALMA → ${LABEL[prev]} (${currentUser?.name})`,user:currentUser?.name,userId:currentUser?.id||currentUser?.username||'',role:currentRole,time:now()});
+    toast('🔄 Geri alındı');closeModal('modalDetail');
+  }catch(e){applyLocalStatus(id,oldStatus);toast('Xəta: '+e.message,true);}
 };
 
 // ===== ALL OTHER FUNCTIONS (FULL) =====
@@ -813,10 +948,16 @@ window.openNewShipment=()=>{
 };
 window.createShipment=async()=>{
   const g=id=>document.getElementById(id)?.value??'';
-  const data={id:g('fNewId').trim(),category:g('fNewCat'),payMethod:g('fNewPay'),weight:parseFloat(g('fNewWeight'))||0,shipPrice:parseFloat(g('fNewPrice'))||0,shipType:g('fNewShip'),description:g('fNewDesc').trim(),senderName:g('fNewSName').trim(),senderSurname:g('fNewSSurname').trim(),senderPhone:g('fNewSPhone').trim(),senderAddress:g('fNewSAddr').trim(),receiverName:g('fNewRName').trim(),receiverSurname:g('fNewRSurname').trim(),receiverPhone:g('fNewRPhone').trim(),receiverAddress:g('fNewRAddr').trim(),trackingCode:g('fNewTrack').trim(),customerNote:g('fNewCNote').trim(),status:'created',createdAt:now(),createdBy:currentUser?.id,createdByName:currentUser?.name};
+  const ts=now();
+  const fullName=((currentUser?.name||'')+' '+(currentUser?.surname||'')).trim();
+  const handlerId=currentUser?.id||currentUser?.username||'';
+  const data={id:g('fNewId').trim(),category:g('fNewCat'),payMethod:g('fNewPay'),weight:parseFloat(g('fNewWeight'))||0,shipPrice:parseFloat(g('fNewPrice'))||0,shipType:g('fNewShip'),description:g('fNewDesc').trim(),senderName:g('fNewSName').trim(),senderSurname:g('fNewSSurname').trim(),senderPhone:g('fNewSPhone').trim(),senderAddress:g('fNewSAddr').trim(),receiverName:g('fNewRName').trim(),receiverSurname:g('fNewRSurname').trim(),receiverPhone:g('fNewRPhone').trim(),receiverAddress:g('fNewRAddr').trim(),trackingCode:g('fNewTrack').trim(),customerNote:g('fNewCNote').trim(),status:'created',createdAt:ts,createdBy:currentUser?.id,createdByName:currentUser?.name,
+    // initial timeline + handler
+    timeline:[{status:'created',fromStatus:null,by:fullName,byId:handlerId,role:currentRole,at:ts,via:'desktop'}],
+    currentHandler:fullName,currentHandlerId:handlerId,currentHandlerRole:currentRole,lastUpdate:ts};
   if(!data.senderName||!data.receiverName||!data.receiverPhone){toast('Göndərən, alan adı və telefon vacibdir',true);return;}
   if(shipments.find(s=>s.id===data.id)){toast('Bu ID artıq mövcuddur',true);return;}
-  try{await setDoc(doc(db,'shipments',data.id),data);await addDoc(collection(db,'history'),{action:'created',message:`Yeni bağlama: ${data.id} (${data.shipType==='international'?'🌍':'🇦🇿'}) — ${currentUser?.name}`,user:currentUser?.name||'',role:currentRole,time:now()});closeModal('modalNew');toast('✅ Bağlama yaradıldı');setTimeout(()=>showQR(data.id),400);}catch(e){toast('Xəta: '+e.message,true);}
+  try{await setDoc(doc(db,'shipments',data.id),data);await addDoc(collection(db,'history'),{action:'created',message:`Yeni bağlama: ${data.id} (${data.shipType==='international'?'🌍':'🇦🇿'}) — ${currentUser?.name}`,user:currentUser?.name||'',userId:handlerId,role:currentRole,time:ts});closeModal('modalNew');toast('✅ Bağlama yaradıldı');setTimeout(()=>showQR(data.id),400);}catch(e){toast('Xəta: '+e.message,true);}
 };
 
 window.filterTable=()=>{
@@ -824,8 +965,13 @@ window.filterTable=()=>{
   searchTimer=setTimeout(()=>{
     const q=(document.getElementById('searchInput')?.value||'').trim().toLowerCase();
     const st=document.getElementById('statusFilter')?.value||'all';
+    const mineOnly=document.getElementById('mineOnlyFilter')?.checked;
     let f=shipments;
     if(st!=='all')f=f.filter(s=>s.status===st);
+    if(mineOnly){
+      const myId=currentUser?.id||currentUser?.username||'';
+      f=f.filter(s=>(s.timeline||[]).some(t=>t.byId===myId));
+    }
     if(q)f=f.filter(s=>[s.id,s.senderName,s.senderSurname,s.senderPhone,s.receiverName,s.receiverSurname,s.receiverPhone,s.receiverAddress,s.trackingCode].some(v=>String(v||'').toLowerCase().includes(q)));
     const area=document.getElementById('tableArea');if(area)area.innerHTML=renderTable(f);
     const cnt=document.getElementById('shipCount');if(cnt)cnt.textContent=`(${f.length}${f.length!==shipments.length?' / '+shipments.length:''})`;
