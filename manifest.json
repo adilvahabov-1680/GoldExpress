@@ -1,28 +1,26 @@
 {
   "name": "GoldExpress Mobile",
   "short_name": "GoldExpress",
-  "description": "GoldExpress kuryer və anbar mobil sistemi",
-  "start_url": "https://adilvahabov-1680.github.io/GoldExpress/Mobile.html",
+  "description": "GoldExpress kuryer və anbar idarəetmə sistemi — mobil versiya",
+  "start_url": "./Gold_Mobile.html",
+  "scope": "./",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#0a0a14",
   "theme_color": "#0a0a14",
-  "orientation": "portrait",
   "lang": "az",
   "icons": [
     {
-      "src": "https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/1f4e6.png",
-      "sizes": "72x72",
-      "type": "image/png"
-    },
-    {
-      "src": "https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/1f4e6.png",
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjMyIiBmaWxsPSIjMGEwYTE0Ii8+PHRleHQgeD0iNTAlIiB5PSI1OCUiIGZvbnQtc2l6ZT0iMTEwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn5OmPC90ZXh0Pjwvc3ZnPg==",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     },
     {
-      "src": "https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/1f4e6.png",
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9Ijg2IiBmaWxsPSIjMGEwYTE0Ii8+PHRleHQgeD0iNTAlIiB5PSI1OCUiIGZvbnQtc2l6ZT0iMjkwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn5OmPC90ZXh0Pjwvc3ZnPg==",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     }
   ]
 }
